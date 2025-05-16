@@ -71,7 +71,7 @@ A planilha também indica, de maneira bem limitada, as reservas de salas, conten
 | RNF002 | O sistema deve proteger os dados dos usuários contra acessos não autorizados, utilizando autenticação e controle de acesso. | Alta       | - |
 | RNF003 | O sistema deve ser responsivo, funcionando adequadamente em desktops e dispositivos móveis.                                 | Média      | - |
 | RNF004 | O sistema deve ser compatível com leitores de tela.                                                                         | Alta       | - |
-| RNF005 | O sistema deve oferecer opções de alto contraste para usuários com deficiência visual.                                      | Alta       | - |
+| RNF005 | O sistema deve oferecer opções de alto contraste para usuários com deficiência visual.                                      | Média      | - |
 | RNF006 | O sistema deve utilizar um banco de dados relacional e garantir integridade transacional dos dados.                         | Média      | - |
 | RNF007 | O sistema deve permitir visualização e consulta de dados offline na versão PWA.                                             | Média      | - |
 | RNF008 | O sistema deve utilizar criptografia para armazenamento e transmissão de dados sensíveis.                                   | Alta       | - |
