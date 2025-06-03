@@ -13,3 +13,39 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Local {
+  id          Int         @id @default(autoincrement())
+  nome        String
+  descricao   String?
+  tipo        TipoSala?
+  localizacao Andares?
+  status      StatusSala?
+  capacidade  Int
+  fotos       String?
+}
+
+enum TipoSala {
+  SALA_AULA
+  LABORATORIO
+  LAB_CELULA
+  LAB_JOGOS
+  LAB_AUDIOVISUAL
+  LAB_PeD
+  LAB_TECNODOCENCIA
+  LAB_LCF
+  SMARTLAB
+}
+
+enum Andares {
+  PRIMEIRO_ANDAR
+  SEGUNDO_ANDAR
+  TERCEIRO_ANDAR
+}
+
+enum StatusSala {
+  LIVRE
+  RESERVADA
+  EM_MANUTENÇÃO
+  PROBLEMA_TECNICO
+}
