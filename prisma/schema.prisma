@@ -25,6 +25,7 @@ model Local {
   fotos       String?
 }
 
+//TODO: Make this better with concept model
 enum TipoSala {
   SALA_AULA
   LABORATORIO
