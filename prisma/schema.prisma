@@ -49,3 +49,18 @@ enum StatusSala {
   EM_MANUTENÇÃO
   PROBLEMA_TECNICO
 }
+
+model RegistroReserva {
+  id            Int         @id @default(autoincrement())
+  aprovacao     Boolean
+  mensagem      String?
+
+  secretarioId  Int
+  secretario    Secretario  @relation(fields: [secretarioId], references: [id])
+}
+
+//NOTE: Just for test, need to change
+model Secretario {
+  id            Int         @id @default(autoincrement())
+  registros     RegistroReserva[]
+}
