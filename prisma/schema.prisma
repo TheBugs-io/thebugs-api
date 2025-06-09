@@ -32,6 +32,9 @@ enum TipoSala {
   LAB_ESPECIAL
   GABINETE
   SECRETARIA
+  CENTRO_ACADEMICO
+  COORDENACAO
+  REUNIAO
 }
 
 enum Andares {
