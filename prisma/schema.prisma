@@ -15,27 +15,23 @@ datasource db {
 }
 
 model Local {
-  id          Int         @id @default(autoincrement())
-  nome        String
-  descricao   String?
-  tipo        TipoSala?
-  localizacao Andares?
-  status      StatusSala?
-  capacidade  Int
-  fotos       String?
+  id            Int         @id @default(autoincrement())
+  nome          String
+  numeracaoSala Int
+  descricao     String?
+  tipo          TipoSala?
+  localizacao   Andares?
+  status        StatusSala?
+  capacidade    Int
+  fotos         String?
 }
 
-//TODO: Make this better with concept model
 enum TipoSala {
   SALA_AULA
   LABORATORIO
-  LAB_CELULA
-  LAB_JOGOS
-  LAB_AUDIOVISUAL
-  LAB_PeD
-  LAB_TECNODOCENCIA
-  LAB_LCF
-  SMARTLAB
+  LAB_ESPECIAL
+  GABINETE
+  SECRETARIA
 }
 
 enum Andares {
