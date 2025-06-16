@@ -64,7 +64,16 @@ enum TipoReserva {
   OUTRO
 }
 
-enum tipoUsuario {
+//TODO: Todos os usuários poderão passar salas favoritas?
+model Usuario {
+  id  Int @unique @default(autoincrement())
+  nomeCompleto  String
+  nomeSocial    String?
+  email         String
+  tipoUsuario   TipoUsuario
+}
+
+enum TipoUsuario {
   DOCENTE
   DISCENTE
   SECRETARIO
