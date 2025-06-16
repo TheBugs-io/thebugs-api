@@ -63,3 +63,10 @@ enum TipoReserva {
   OFICINA
   OUTRO
 }
+
+enum tipoUsuario {
+  DOCENTE
+  DISCENTE
+  SECRETARIO
+  ADMIN
+}
