@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -24,8 +18,54 @@ model Local {
   status        StatusSala?
   capacidade    Int
   fotos         String?
+  reservas      Reserva[]
+}
 
-  reservas Reserva[] //1:N
+model Usuario {
+  id           Int         @unique @default(autoincrement())
+  nomeCompleto String
+  nomeSocial   String?
+  email        String
+  tipoUsuario  TipoUsuario
+  Reserva      Reserva[]
+}
+
+model Docente {
+  id Int @unique @default(autoincrement())
+}
+
+model Discente {
+  id Int @unique @default(autoincrement())
+}
+
+model Secretario {
+  id              Int               @unique @default(autoincrement())
+  RegistroReserva RegistroReserva[]
+}
+
+model Reserva {
+  id           Int               @unique @default(autoincrement())
+  localId      Int
+  tipo         TipoReserva
+  dataInicio   DateTime
+  dataFim      DateTime
+  dataPedido   DateTime          @default(now())
+  statusPedido StatusPedido      @default(AGUARDANDO)
+  usuarioId    Int
+  registros    RegistroReserva[]
+  local        Local             @relation(fields: [localId], references: [id])
+  usuario      Usuario           @relation(fields: [usuarioId], references: [id])
+}
+
+model RegistroReserva {
+  id           Int          @unique @default(autoincrement())
+  status       StatusPedido
+  mensagem     String?
+  data         DateTime     @default(now())
+  reservaId    Int
+  secretarioId Int
+  reserva      Reserva      @relation(fields: [reservaId], references: [id])
+  secretario   Secretario   @relation(fields: [secretarioId], references: [id])
 }
 
 enum TipoSala {
@@ -48,7 +88,7 @@ enum Andares {
 enum StatusSala {
   LIVRE
   RESERVADA
-  EM_MANUTENÇÃO
+  EM_MANUTENCAO
   PROBLEMA_TECNICO
 }
 
@@ -66,16 +106,6 @@ enum TipoReserva {
   OUTRO
 }
 
-//TODO: Todos os usuários poderão passar salas favoritas?
-model Usuario {
-  id           Int         @unique @default(autoincrement())
-  nomeCompleto String
-  nomeSocial   String?
-  email        String
-  tipoUsuario  TipoUsuario
-  Reserva      Reserva[]
-}
-
 enum TipoUsuario {
   DOCENTE
   DISCENTE
@@ -83,52 +113,8 @@ enum TipoUsuario {
   ADMIN
 }
 
-//MARK: - Temporários
-model Docente {
-  id Int @unique @default(autoincrement())
-}
-
-model Discente {
-  id Int @unique @default(autoincrement())
-}
-
-//MARK: - Reserva + Secretário
-//TODO: Melhorar as relações depois
-model Secretario {
-  id Int @unique @default(autoincrement())
-
-  RegistroReserva RegistroReserva[]
-}
-
-model Reserva {
-  id           Int          @unique @default(autoincrement())
-  local        Local        @relation(fields: [localId], references: [id]) //1:1
-  localId      Int
-  tipo         TipoReserva
-  dataInicio   DateTime
-  dataFim      DateTime
-  dataPedido   DateTime     @default(now())
-  statusPedido StatusPedido @default(AGUARDANDO)
-
-  usuarioId Int
-  usuario   Usuario           @relation(fields: [usuarioId], references: [id])
-  registros RegistroReserva[]
-}
-
 enum StatusPedido {
   AGUARDANDO
   APROVADO
   REJEITADO
-}
-
-model RegistroReserva {
-  id       Int          @unique @default(autoincrement())
-  status   StatusPedido
-  mensagem String?
-  data     DateTime     @default(now())
-
-  reservaId    Int
-  reserva      Reserva    @relation(fields: [reservaId], references: [id])
-  secretario   Secretario @relation(fields: [secretarioId], references: [id])
-  secretarioId Int
 }
