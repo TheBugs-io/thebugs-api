@@ -24,6 +24,8 @@ model Local {
   status        StatusSala?
   capacidade    Int
   fotos         String?
+
+  reservas Reserva[] //1:N
 }
 
 enum TipoSala {
@@ -66,11 +68,12 @@ enum TipoReserva {
 
 //TODO: Todos os usuários poderão passar salas favoritas?
 model Usuario {
-  id  Int @unique @default(autoincrement())
-  nomeCompleto  String
-  nomeSocial    String?
-  email         String
-  tipoUsuario   TipoUsuario
+  id           Int         @unique @default(autoincrement())
+  nomeCompleto String
+  nomeSocial   String?
+  email        String
+  tipoUsuario  TipoUsuario
+  Reserva      Reserva[]
 }
 
 enum TipoUsuario {
@@ -78,4 +81,54 @@ enum TipoUsuario {
   DISCENTE
   SECRETARIO
   ADMIN
+}
+
+//MARK: - Temporários
+model Docente {
+  id Int @unique @default(autoincrement())
+}
+
+model Discente {
+  id Int @unique @default(autoincrement())
+}
+
+//MARK: - Reserva + Secretário
+//TODO: Melhorar as relações depois
+model Secretario {
+  id Int @unique @default(autoincrement())
+
+  RegistroReserva RegistroReserva[]
+}
+
+model Reserva {
+  id           Int          @unique @default(autoincrement())
+  local        Local        @relation(fields: [localId], references: [id]) //1:1
+  localId      Int
+  tipo         TipoReserva
+  dataInicio   DateTime
+  dataFim      DateTime
+  dataPedido   DateTime     @default(now())
+  statusPedido StatusPedido @default(AGUARDANDO)
+
+  usuarioId Int
+  usuario   Usuario           @relation(fields: [usuarioId], references: [id])
+  registros RegistroReserva[]
+}
+
+enum StatusPedido {
+  AGUARDANDO
+  APROVADO
+  REJEITADO
+}
+
+model RegistroReserva {
+  id       Int          @unique @default(autoincrement())
+  status   StatusPedido
+  mensagem String?
+  data     DateTime     @default(now())
+
+  reservaId    Int
+  reserva      Reserva    @relation(fields: [reservaId], references: [id])
+  secretario   Secretario @relation(fields: [secretarioId], references: [id])
+  secretarioId Int
 }
