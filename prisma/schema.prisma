@@ -57,3 +57,9 @@ enum NivelSuperior {
   DOUTORADO
   POS_DOUTORADO
 }
+
+enum TipoReserva {
+  DISCIPLINA
+  OFICINA
+  OUTRO
+}
