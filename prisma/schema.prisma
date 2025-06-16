@@ -49,3 +49,11 @@ enum StatusSala {
   EM_MANUTENÇÃO
   PROBLEMA_TECNICO
 }
+
+enum NivelSuperior {
+  GRADUACAO
+  POS_GRADUACAO
+  MESTRADO
+  DOUTORADO
+  POS_DOUTORADO
+}
