@@ -49,3 +49,33 @@ enum StatusSala {
   EM_MANUTENÇÃO
   PROBLEMA_TECNICO
 }
+
+enum NivelSuperior {
+  GRADUACAO
+  POS_GRADUACAO
+  MESTRADO
+  DOUTORADO
+  POS_DOUTORADO
+}
+
+enum TipoReserva {
+  DISCIPLINA
+  OFICINA
+  OUTRO
+}
+
+//TODO: Todos os usuários poderão passar salas favoritas?
+model Usuario {
+  id  Int @unique @default(autoincrement())
+  nomeCompleto  String
+  nomeSocial    String?
+  email         String
+  tipoUsuario   TipoUsuario
+}
+
+enum TipoUsuario {
+  DOCENTE
+  DISCENTE
+  SECRETARIO
+  ADMIN
+}
