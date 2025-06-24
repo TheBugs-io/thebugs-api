@@ -15,7 +15,7 @@ const htmlSecretariaContent = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alerta de Segurança</title>
+    <title>Nova solicitação de registro</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
         
@@ -138,8 +138,8 @@ const htmlSecretariaContent = `
 export const mailServiceToSec = (async () => {
   try {
     const info = await transporter.sendMail({
-      from: '"" <ingrydcduarte@gmail.com>',
-      to: "dboanerges@alu.ufc.br",
+      from: '"" <email@gmail.com>',
+      to: "solicitador",
       subject: "SOLICITAÇÃO: Novo pedido de conta na plataforma",
       text: "Olá,\n\nhouve novo pedido de criação de conta na plataforma. Por favor, analise o pedido de registro de usuário.\n\nAtenciosamente,\nEquipe do Cadê a sala?",
       html: htmlSecretariaContent,
