@@ -67,7 +67,7 @@ A planilha também indica, de maneira bem limitada, as reservas de salas, conten
 
 | ID     | Descrição                                                                                                                   | Prioridade | Status   |
 | ------ | --------------------------------------------------------------------------------------------------------------------------- | ---------- | -------- |
-| RNF001 | O sistema deve seguir princípios de usabilidade e fornecer acessibilidade conforme as diretrizes WCAG 2.1.                  | Alta       | - |
+| RNF001 | O sistema deve seguir princípios de usabilidade e fornecer acessibilidade.               | Alta       | - |
 | RNF002 | O sistema deve proteger os dados dos usuários contra acessos não autorizados, utilizando autenticação e controle de acesso. | Alta       | - |
 | RNF003 | O sistema deve ser responsivo, funcionando adequadamente em desktops e dispositivos móveis.                                 | Média      | - |
 | RNF004 | O sistema deve ser compatível com leitores de tela.                                                                         | Alta       | - |
