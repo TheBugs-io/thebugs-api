@@ -1,8 +1,8 @@
-export const htmlSecretariaContent = `
+export const gerarHtmlSecretariaContent = (solicitacao) => `
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
+<head>    
+<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nova solicitação de registro</title>
     <style>
@@ -89,37 +89,33 @@ export const htmlSecretariaContent = `
     </style>
 </head>
 <body>
-    <div class="email-container">
-        <header>
-            <div class="alert-icon"></div>
-            <h1>Solicitação de registro no <b>Cadê a sala?</b></h1>
-        </header>
-        
-        <main>
-            <div class="content-block">
-                <p>Olá, secretaria. <span class="emoji">👋</span></p>
-                
-                <p>Esse é novo e-mail para solicitação de uma conta, analise a solicitação antes de confirmar. </p>
-                <div class="warning-text">
-                    <b>Informações do usuário:</b>
-                        <p><strong>Nome:</strong> ${solicitacao.nomeCompleto}</p>
-                        <p><strong>E-mail:</strong> ${solicitacao.email}</p>
-                        <p><strong>Tipo:</strong> ${solicitacao.tipoUsuario}</p>
-                </div>
-                
-                <a href="#" class="cta-button">CONFIRMAR CRIAÇÃO DA CONTA</a>
-            </div>
-            
-            <div class="signature">
-                <h4>Atenciosamente,</h4>
-                <p><small>Equipe da Cadê a sala?</small></p>
-            </div>
-        </main>
-        
-        <footer>
-            <p>© 2025 Cadê a Sala?. Todos os direitos reservados.</p>
-            <p>Esta é uma mensagem automática, por favor não responda.</p>
-        </footer>
-    </div>
+  <div class="email-container">
+    <header>
+      <div class="alert-icon"></div>
+      <h1>Solicitação de registro no <b>Cadê a sala?</b></h1>
+    </header>
+    <main>
+      <div class="content-block">
+        <p>Olá, secretaria. <span class="emoji">👋</span></p>
+        <p>Esse é novo e-mail para solicitação de uma conta, analise a solicitação antes de confirmar.</p>
+        <div class="warning-text">
+          <b>Informações do usuário:</b>
+          <p><strong>Nome:</strong> ${solicitacao.nomeCompleto}</p>
+          <p><strong>E-mail:</strong> ${solicitacao.email}</p>
+          <p><strong>Tipo:</strong> ${solicitacao.tipoUsuario}</p>
+        </div>
+        <a href="#" class="cta-button">CONFIRMAR CRIAÇÃO DA CONTA</a>
+      </div>
+      <div class="signature">
+        <h4>Atenciosamente,</h4>
+        <p><small>Equipe da Cadê a sala?</small></p>
+      </div>
+    </main>
+    <footer>
+      <p>© 2025 Cadê a Sala?. Todos os direitos reservados.</p>
+      <p>Esta é uma mensagem automática, por favor não responda.</p>
+    </footer>
+  </div>
 </body>
-</html>`;
+</html>
+`;
