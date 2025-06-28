@@ -21,26 +21,54 @@ model Local {
   reservas      Reserva[]
 }
 
-model Usuario {
-  id           Int         @unique @default(autoincrement())
+model SolicitacaoRegistro {
+  id           Int                       @id @default(autoincrement())
   nomeCompleto String
   nomeSocial   String?
-  email        String
+  email        String                    @unique
   tipoUsuario  TipoUsuario
-  Reserva      Reserva[]
+  token        String                    @unique
+  status       StatusSolicitacaoRegistro @default(PENDENTE)
+  criadoEm     DateTime                  @default(now())
+  atualizadoEm DateTime                  @updatedAt
+  secretarioId Int?
+  usuarioId    Int?
+  secretario   Secretario?               @relation(fields: [secretarioId], references: [id])
+  usuario      Usuario?                  @relation(fields: [usuarioId], references: [id])
+}
+
+model Usuario {
+  id                  Int                   @id @default(autoincrement())
+  nomeCompleto        String
+  nomeSocial          String?
+  email               String                @unique
+  senha               String
+  tipo                TipoUsuario
+  Discente            Discente?
+  Docente             Docente?
+  Reserva             Reserva[]
+  Secretario          Secretario?
+  SolicitacaoRegistro SolicitacaoRegistro[]
 }
 
 model Docente {
-  id Int @unique @default(autoincrement())
+  id        Int     @id @default(autoincrement())
+  usuarioId Int     @unique
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
 }
 
 model Discente {
-  id Int @unique @default(autoincrement())
+  id        Int     @id @default(autoincrement())
+  usuarioId Int     @unique
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
 }
 
 model Secretario {
-  id              Int               @unique @default(autoincrement())
-  RegistroReserva RegistroReserva[]
+  id                  Int                   @id @default(autoincrement())
+  usuarioId           Int                   @unique
+  RegistroReserva     RegistroReserva[]
+  usuario             Usuario               @relation(fields: [usuarioId], references: [id])
+  SolicitacaoRegistro SolicitacaoRegistro[]
 }
 
 model Reserva {
@@ -117,4 +145,11 @@ enum StatusPedido {
   AGUARDANDO
   APROVADO
   REJEITADO
+}
+
+enum StatusSolicitacaoRegistro {
+  PENDENTE
+  APROVADO
+  REJEITADO
+  EXPIRADO
 }
