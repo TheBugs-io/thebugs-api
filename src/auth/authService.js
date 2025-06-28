@@ -1,40 +1,39 @@
-import "bcrypt";
-import "jsonwebtoken";
-import validarEmailInstitucional from "../utils/validationEmail";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-export const solicitarRegistro = async (req, res) => {
+export const login = async (req, res) => {
   try {
-    const {
-      nomeCompleto,
-      nomeSocial,
-      email,
-      tipo,
-      ...dadosEspecificos
-    } = req.body;
-    const camposObrigatorios = { nomeCompleto, email, tipo };
-    const camposFaltando = Object.entries(camposObrigatorios)
-      .filter(([_, valor]) => !valor)
-      .map(([campo]) => campo);
+    const { email, senha } = req.body;
 
-    if (camposFaltando.length > 0) {
-      return res.status(400).json({
-        error: "Campos obrigatórios faltando!",
-        campos: camposFaltando,
-      });
+    const usuario = await usuarioModel.buscarUsuarioPorEmail(email);
+    console.log("Resultado da busca:", usuario);
+    if (!usuario) {
+      return res.status(400).send({ error: "Usuário não encontrado!" });
     }
 
-    const usuarioExistente = await buscarUsuarioPorEmail(email);
-    if (usuarioExistente) {
-      return res.status(409).json({ error: "Esse email já foi cadastrado! Fique atento ao seu email ou contate a secretaria." });
+    const senhaValida = await bcrypt.compare(senha, usuario.senha);
+    console.log("Senha válida?", senhaValida);
+    if (!senhaValida) {
+      return res.status(401).send({ error: "Senha inválida!" });
     }
 
-    if(!validarEmailInstitucional(email)){
-        return res.status(400).json({error: "Apenas e-mails institucionais do domínio UFC são permitidos."})
-    }
+    const token = jwt.sign(
+      { id: usuario.id, tipo: usuario.tipo },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
-    //TODO: Passar os dados específicos do tipo (Discente / Docente)
-
+    res.json({
+      token,
+      id: usuario.id,
+      tipo: usuario.tipo,
+      nomeCompleto: usuario.nomeCompleto,
+      email: usuario.email,
+    });
   } catch (error) {
-    throw new Error("Erro ao solicitar sua conta: " + error.message);
+    console.error("Erro no login:", error);
+    res.status(500).json({ error: "Erro ao fazer login!" });
   }
 };
+
+//TODO: Request change password (PUT)
