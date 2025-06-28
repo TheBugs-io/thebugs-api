@@ -110,7 +110,7 @@ export const criarUsuario = async (dadosSolicitacao) => {
 export const listarSolicitacoesPendentes = async () => {
   return await prisma.solicitacaoRegistro.findMany({
     where: {
-      OR: [{ status: "PENDENTE" }, { status: "AGUARDANDO_APROVACAO" }],
+      status: "PENDENTE",
     },
     orderBy: { criadoEm: "asc" },
   });
