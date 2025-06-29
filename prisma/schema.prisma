@@ -52,9 +52,20 @@ model Usuario {
 }
 
 model Docente {
-  id        Int     @id @default(autoincrement())
-  usuarioId Int     @unique
-  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  id            Int           @id @default(autoincrement())
+  vinculo       VinculoInst
+  nivelSuperior NivelSuperior
+  departamento  String?
+  siape         String
+  usuarioId     Int           @unique
+  usuario       Usuario       @relation(fields: [usuarioId], references: [id])
+}
+
+enum VinculoInst {
+  EFETIVO
+  SUBSTITUTO
+  TERCEIRIZADO
+  OUTRO
 }
 
 model Discente {
