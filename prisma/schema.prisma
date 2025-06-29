@@ -69,9 +69,13 @@ enum VinculoInst {
 }
 
 model Discente {
-  id        Int     @id @default(autoincrement())
-  usuarioId Int     @unique
-  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  id           Int           @id @default(autoincrement())
+  matricula    String
+  nivelSuperior NivelSuperior
+  smd          Boolean
+  curso        String
+  usuarioId    Int           @unique
+  usuario      Usuario       @relation(fields: [usuarioId], references: [id])
 }
 
 model Secretario {
