@@ -78,6 +78,13 @@ A planilha também indica, de maneira bem limitada, as reservas de salas, conten
 | RNF007 | O sistema deve permitir visualização e consulta de dados offline na versão PWA.                                             | Média      | - |
 | RNF008 | O sistema deve utilizar criptografia para armazenamento e transmissão de dados sensíveis.                                   | Alta       | - |
 
+## Quadro Kanban
+
+Utilizando o Notion categorizando entre Design e Code sections:
+
+<img src="https://github.com/user-attachments/assets/58ffc5d1-0c7d-4e14-a81f-1e40ea220b31">
+
+<img src="https://github.com/user-attachments/assets/d28d5c01-e8ac-454f-92a2-5118e61a9c38" width="300">
 
 
 ## Como rodar o projeto
