@@ -54,3 +54,22 @@ export const notificarSecretaria = async (solicitacao) => {
     html: gerarHtmlSecretariaContent(solicitacao)
   });
 };
+
+export const notificarUsuario = async (email, senhaInicial) => {
+  if (!email) return;
+
+  await transporter.sendMail({
+    from: '"Cadê a Sala?" <nao-responda@ufc.br>',
+    to: email,
+    subject: 'Sua conta foi criada',
+    text: `Olá,\n\nSua conta na plataforma "Cadê a Sala?" foi criada com sucesso.\n\nEmail: ${email}\nSenha inicial: ${senhaInicial}\n\nRecomendamos que você altere sua senha após o primeiro acesso.\n\nAtenciosamente,\nEquipe do Cadê a Sala?`,
+    html: `
+      <p>Olá,</p>
+      <p>Sua conta na plataforma <strong>Cadê a Sala?</strong> foi criada com sucesso.</p>
+      <p><strong>Email:</strong> ${email}<br/>
+         <strong>Senha inicial:</strong> ${senhaInicial}</p>
+      <p>Recomendamos que você altere sua senha após o primeiro acesso.</p>
+      <p>Atenciosamente,<br/>Equipe do Cadê a Sala?</p>
+    `
+  });
+};
