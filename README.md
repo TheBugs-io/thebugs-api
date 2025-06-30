@@ -80,11 +80,11 @@ A planilha também indica, de maneira bem limitada, as reservas de salas, conten
 
 ## Quadro Kanban
 
-Utilizando o Notion categorizando entre Design e Code sections:
+Utilizando o Notion categorizando entre <b>Design e Code</b> sections:
 
 <img src="https://github.com/user-attachments/assets/58ffc5d1-0c7d-4e14-a81f-1e40ea220b31">
 
-<img src="https://github.com/user-attachments/assets/d28d5c01-e8ac-454f-92a2-5118e61a9c38" width="300">
+<img src="https://github.com/user-attachments/assets/d28d5c01-e8ac-454f-92a2-5118e61a9c38">
 
 
 ## Como rodar o projeto
