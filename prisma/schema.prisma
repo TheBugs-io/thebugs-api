@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -24,6 +18,97 @@ model Local {
   status        StatusSala?
   capacidade    Int
   fotos         String?
+  reservas      Reserva[]
+}
+
+model SolicitacaoRegistro {
+  id           Int                       @id @default(autoincrement())
+  nomeCompleto String
+  nomeSocial   String?
+  email        String                    @unique
+  tipoUsuario  TipoUsuario
+  token        String                    @unique
+  status       StatusSolicitacaoRegistro @default(PENDENTE)
+  criadoEm     DateTime                  @default(now())
+  atualizadoEm DateTime                  @updatedAt
+  secretarioId Int?
+  usuarioId    Int?
+  secretario   Secretario?               @relation(fields: [secretarioId], references: [id])
+  usuario      Usuario?                  @relation(fields: [usuarioId], references: [id])
+}
+
+model Usuario {
+  id                  Int                   @id @default(autoincrement())
+  nomeCompleto        String
+  nomeSocial          String?
+  email               String                @unique
+  senha               String
+  tipo                TipoUsuario
+  Discente            Discente?
+  Docente             Docente?
+  Reserva             Reserva[]
+  Secretario          Secretario?
+  SolicitacaoRegistro SolicitacaoRegistro[]
+}
+
+model Docente {
+  id            Int           @id @default(autoincrement())
+  vinculo       VinculoInst
+  nivelSuperior NivelSuperior
+  departamento  String?
+  siape         String
+  usuarioId     Int           @unique
+  usuario       Usuario       @relation(fields: [usuarioId], references: [id])
+}
+
+enum VinculoInst {
+  EFETIVO
+  SUBSTITUTO
+  TERCEIRIZADO
+  OUTRO
+}
+
+model Discente {
+  id           Int           @id @default(autoincrement())
+  matricula    String
+  nivelSuperior NivelSuperior
+  smd          Boolean
+  curso        String
+  usuarioId    Int           @unique
+  usuario      Usuario       @relation(fields: [usuarioId], references: [id])
+}
+
+model Secretario {
+  id                  Int                   @id @default(autoincrement())
+  usuarioId           Int                   @unique
+  RegistroReserva     RegistroReserva[]
+  usuario             Usuario               @relation(fields: [usuarioId], references: [id])
+  SolicitacaoRegistro SolicitacaoRegistro[]
+}
+
+model Reserva {
+  id           Int               @unique @default(autoincrement())
+  localId      Int
+  tipo         TipoReserva
+  dataInicio   DateTime
+  dataFim      DateTime
+  dataPedido   DateTime          @default(now())
+  statusPedido StatusPedido      @default(AGUARDANDO)
+  usuarioId    Int
+  registros    RegistroReserva[]
+  local        Local             @relation(fields: [localId], references: [id])
+  usuario      Usuario           @relation(fields: [usuarioId], references: [id])
+}
+
+model RegistroReserva {
+  id           Int          @unique @default(autoincrement())
+  status       StatusPedido
+  mensagem     String?
+  data         DateTime     @default(now())
+  reservaId    Int
+  secretarioId Int
+  reserva      Reserva      @relation(fields: [reservaId], references: [id])
+  secretario   Secretario   @relation(fields: [secretarioId], references: [id])
 }
 
 enum TipoSala {
@@ -46,7 +131,7 @@ enum Andares {
 enum StatusSala {
   LIVRE
   RESERVADA
-  EM_MANUTENÇÃO
+  EM_MANUTENCAO
   PROBLEMA_TECNICO
 }
 
@@ -64,18 +149,22 @@ enum TipoReserva {
   OUTRO
 }
 
-//TODO: Todos os usuários poderão passar salas favoritas?
-model Usuario {
-  id  Int @unique @default(autoincrement())
-  nomeCompleto  String
-  nomeSocial    String?
-  email         String
-  tipoUsuario   TipoUsuario
-}
-
 enum TipoUsuario {
   DOCENTE
   DISCENTE
   SECRETARIO
   ADMIN
+}
+
+enum StatusPedido {
+  AGUARDANDO
+  APROVADO
+  REJEITADO
+}
+
+enum StatusSolicitacaoRegistro {
+  PENDENTE
+  APROVADO
+  REJEITADO
+  EXPIRADO
 }

@@ -1,10 +1,21 @@
 import express from 'express';
-//TODO: Pass authController here
-import * as authController from "../auth/authService.js";
+import * as authService from "../auth/authService.js";
+import * as registerService from "../auth/registerService.js";
+import { authMiddleware } from '../middleware/authMiddleware.js';
+import { autorizacaoSecretario } from '../middleware/authorizationAdm.js';
 
 const router = express.Router();
 
-router.post('/login', authController.login);
-router.post('/register', authController.register);
+router.post('/login', authService.login);
+router.post('/register/solicitar', registerService.solicitarRegistro);
+router.get('/register/confirmar/:token', registerService.confirmarEmail);
+//MARK: - Secretarios
+router.post('/register/confirm-user', autorizacaoSecretario, registerService.confirmarEmail);
+router.get('/register/token/:token', registerService.buscarPorToken);
+router.get('/register/id/:id', registerService.buscarPorId);
+router.get('/register/email/:email', registerService.buscarPorEmail);
+router.get('/register/pendentes', registerService.listarPendentes);
+router.patch('/register/:id/status', registerService.atualizarStatus);
+router.delete('/register/:id', registerService.deletarSolicitacao);
 
 export default router;
