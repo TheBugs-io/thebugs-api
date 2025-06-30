@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import validarEmailInstitucional from "../utils/validationEmail.js";
 import {
   enviarEmailConfirmacao,
-  notificarSecretaria,
+  notificarSecretaria, notificarUsuario
 } from "../service/mailRegister.js";
 import gerarSenhaInicial from "../utils/generatePassword.js";
 
@@ -167,14 +167,77 @@ export const listarPendentes = async (req, res) => {
 
 export const atualizarStatus = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = +req.params.id;
     const { status, secretarioId } = req.body;
+
+    if (!Number.isInteger(id)) {
+      return res
+        .status(400)
+        .json({ error: "ID inválido. Esperado um número inteiro." });
+    }
 
     const atualizada = await registroModel.atualizarStatusSolicitacao(
       id,
       status,
       secretarioId
     );
+
+    if (status === "APROVADO") {
+      const solicitacao = await prisma.solicitacaoRegistro.findUnique({
+        where: { id: id },
+      });
+
+      if (!solicitacao) {
+        return res
+          .status(404)
+          .json({
+            error: "Solicitação não encontrada para criação de usuário.",
+          });
+      }
+
+      const jaExisteUsuario = await prisma.usuario.findUnique({
+        where: { email: solicitacao.email },
+      });
+
+      if (jaExisteUsuario) {
+        return res
+          .status(409)
+          .json({ error: "Usuário já existe com esse e-mail." });
+      }
+
+      const senhaInicial = gerarSenhaInicial(10);
+      const senhaHash = await bcrypt.hash(senhaInicial, 10);
+
+      const novoUsuario = await prisma.usuario.create({
+        data: {
+          nomeCompleto: solicitacao.nomeCompleto,
+          nomeSocial: solicitacao.nomeSocial,
+          email: solicitacao.email,
+          senha: senhaHash,
+          tipo: solicitacao.tipoUsuario,
+        },
+      });
+
+      await prisma.solicitacaoRegistro.update({
+        where: { id: solicitacao.id },
+        data: {
+          usuarioId: novoUsuario.id,
+        },
+      });
+
+      await notificarUsuario(novoUsuario.email, senhaInicial);
+
+      return res.status(201).json({
+        message: "Status atualizado e usuário criado com sucesso.",
+        usuario: {
+          id: novoUsuario.id,
+          nomeCompleto: novoUsuario.nomeCompleto,
+          email: novoUsuario.email,
+          tipoUsuario: novoUsuario.tipoUsuario,
+        },
+        senhaInicial,
+      });
+    }
 
     res.status(200).json(atualizada);
   } catch (error) {
