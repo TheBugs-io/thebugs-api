@@ -10,7 +10,7 @@ router.post('/login', authService.login);
 router.post('/register/solicitar', registerService.solicitarRegistro);
 router.get('/register/confirmar/:token', registerService.confirmarEmail);
 //MARK: - Secretarios
-router.post('/register/confirm-user', autorizacaoSecretario, registerService.confirmarCriacaoUsuario);
+router.post('/register/confirm-user', autorizacaoSecretario, registerService.confirmarEmail);
 router.get('/register/token/:token', registerService.buscarPorToken);
 router.get('/register/id/:id', registerService.buscarPorId);
 router.get('/register/email/:email', registerService.buscarPorEmail);
