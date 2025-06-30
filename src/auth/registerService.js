@@ -3,7 +3,10 @@ import * as registroModel from "../models/registroModel.js";
 import prisma from "../database/prisma.js";
 import { v4 as uuidv4 } from "uuid";
 import validarEmailInstitucional from "../utils/validationEmail.js";
-import { enviarEmailConfirmacao, notificarSecretaria } from "../service/mailRegister.js";
+import {
+  enviarEmailConfirmacao,
+  notificarSecretaria,
+} from "../service/mailRegister.js";
 import gerarSenhaInicial from "../utils/generatePassword.js";
 
 export const solicitarRegistro = async (req, res) => {
@@ -167,7 +170,11 @@ export const atualizarStatus = async (req, res) => {
     const { id } = req.params;
     const { status, secretarioId } = req.body;
 
-    const atualizada = await registroModel.atualizarStatusSolicitacao(id, status, secretarioId);
+    const atualizada = await registroModel.atualizarStatusSolicitacao(
+      id,
+      status,
+      secretarioId
+    );
 
     res.status(200).json(atualizada);
   } catch (error) {
@@ -178,7 +185,16 @@ export const atualizarStatus = async (req, res) => {
 
 export const deletarSolicitacao = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+
+    const solicitacao = await registroModel.buscarSolicitacaoPorId(id);
+    if (!solicitacao) {
+      return res.status(404).json({ error: "Solicitação não encontrada." });
+    }
+
     await registroModel.deletarSolicitacao(id);
     res.status(200).json({ message: "Solicitação deletada com sucesso." });
   } catch (error) {
@@ -192,7 +208,9 @@ export const confirmarCriacaoUsuario = async (req, res) => {
     const { id } = req.body;
 
     if (!id) {
-      return res.status(400).json({ error: 'ID é obrigatório para confirmação.' });
+      return res
+        .status(400)
+        .json({ error: "ID é obrigatório para confirmação." });
     }
 
     const solicitacao = await prisma.solicitacaoRegistro.findUnique({
@@ -200,7 +218,7 @@ export const confirmarCriacaoUsuario = async (req, res) => {
     });
 
     if (!solicitacao) {
-      return res.status(404).json({ error: 'Solicitação não encontrada.' });
+      return res.status(404).json({ error: "Solicitação não encontrada." });
     }
 
     const jaExisteUsuario = await prisma.usuario.findUnique({
@@ -208,7 +226,9 @@ export const confirmarCriacaoUsuario = async (req, res) => {
     });
 
     if (jaExisteUsuario) {
-      return res.status(409).json({ error: 'Usuário já criado com esse e-mail.' });
+      return res
+        .status(409)
+        .json({ error: "Usuário já criado com esse e-mail." });
     }
 
     const senhaInicial = gerarSenhaInicial(10);
@@ -227,13 +247,13 @@ export const confirmarCriacaoUsuario = async (req, res) => {
     await prisma.solicitacaoRegistro.update({
       where: { id: solicitacao.id },
       data: {
-        status: 'APROVADO',
+        status: "APROVADO",
         usuarioId: novoUsuario.id,
       },
     });
 
     return res.status(201).json({
-      message: 'Usuário criado com sucesso a partir da solicitação.',
+      message: "Usuário criado com sucesso a partir da solicitação.",
       usuario: {
         id: novoUsuario.id,
         nomeCompleto: novoUsuario.nomeCompleto,
@@ -243,9 +263,10 @@ export const confirmarCriacaoUsuario = async (req, res) => {
       },
       senhaInicial, // TODO:  enviar por e-mail depois
     });
-
   } catch (error) {
-    console.error('Erro ao confirmar usuário:', error);
-    return res.status(500).json({ error: 'Erro interno ao confirmar usuário.' });
+    console.error("Erro ao confirmar usuário:", error);
+    return res
+      .status(500)
+      .json({ error: "Erro interno ao confirmar usuário." });
   }
 };
