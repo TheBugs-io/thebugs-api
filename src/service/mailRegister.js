@@ -1,5 +1,6 @@
 import { createTransport } from 'nodemailer';
 import prisma from '../database/prisma.js';
+import { gerarHtmlSecretariaContent } from '../template/mailRequestRegister.js'
 
 const transporter = createTransport({
   service: 'gmail',
