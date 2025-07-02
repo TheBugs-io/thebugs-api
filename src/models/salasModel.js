@@ -54,27 +54,61 @@ const mapaNaData = (data = "0-0-0", horario = "10:00") => {
 
 const salaNaData = (id, data = "0-0-0", horario = "10:00") => {
   const sala = salas.find((s) => s.id == id);
-  const ENCONTRADA = sala != -1;
+  const ENCONTRADA = sala != undefined;
 
   if (ENCONTRADA) {
-    const reservasDaSala = reservas.filter((r) => r.sala_id == id);
+    function extrairDadosData(data = "0-0-0") {
+      const [diaDoMes, mes, ano] = data.split("-").map(Number);
+      const diaDaSemana = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"][new Date(ano, mes, diaDoMes).getDay()];
+      return [diaDoMes, mes, ano, diaDaSemana];
+    }
 
-    //parei aqui; tem que achar uma forma de comparar as datas de reservas e creio q seja mais facil no prisma
-    //preciso: ver se a reserva ta na data, ou seja, se a data em questao está entre o inicio e o fim da reserva E TAMBEM se repete no tal dia da semana
-    //next: achar a reserva no dito horario (bem mais facil) (btw talvez seja melhor filtrar na ordem inversa. horario primeiro e dps data)
+    function compararDatas(dataAnalisar = "0-0-0", dataInicio = "0-0-0", dataFim = "0-0-0") {
+      dataAnalisar = extrairDadosData(dataAnalisar);
+      dataInicio = extrairDadosData(dataInicio);
+      dataFim = extrairDadosData(dataFim);
 
-    // function compararDatas(d1 = "0-0-0", d2 = "0-0-0") {
-    //   d1 = d1.split("-").map((_) => Number(_));
-    //   d2 = d2.split("-").map((_) => Number(_));
-    //   for (let i = 0; i < 3; i++) {
-    //     if (d1[i] !== d2[i]) return false;
-    //   }
-    //   return true
-    // }
+      let taEntreAsDuas = true;
+      for (let i = 0; i < 3; i++) {
+        if (!(dataAnalisar[i] >= dataInicio[i] && dataAnalisar[i] <= dataFim[i])) taEntreAsDuas = false;
+      }
+      return taEntreAsDuas;
+    }
 
-    // const reservasNaData = reservasDaSala.filter(r=>compararDatas(r.inicio));
-  } else {
+    //vê se a reserva ocorre no dia da semana e horario informados
+    function verificarDiaEHorario(dia, diasPossiveis = [], horario, horariosPossiveis = []) {
+      const index = diasPossiveis.indexOf(dia);
+      if (index == -1) return false;
+      //converte os horarios do formato "14:30" para 14.5 ou "09:15" para 9.25
+      const [horaInicio, horaFim] = horariosPossiveis[index]
+        .split("-")
+        .map((s) => s.split(":").map(Number))
+        .map((h) => h[0] + h[1] / 60);
+      horario = horario.split(":").map(Number);
+      horario = horario[0] + horario[1] / 60;
+
+      return horaInicio <= horario && horaFim >= horario;
+    }
+
+    try {
+      const reservasDaSala = reservas.filter((r) => r.sala_id == id);
+      const reservasNaData = reservasDaSala.filter((r) => compararDatas(data, r.inicio, r.fim));
+      const diaDaSemana = extrairDadosData()[4];
+      const reservasNoHorario = reservasNaData.filter((r) =>
+        verificarDiaEHorario(diaDaSemana, r.dias_da_semana, horario, r.horarios)
+      );
+
+      const reservaEncontrada = reservasNoHorario[0];
+      return reservaEncontrada;
+    } catch (err) {
+      //nenhuma reserva encontrada
+      return 0;
+    }
   }
+  //sala não encontrada
+  return -1;
+};
 
-  return atribuicoes;
+const reservasDaSala = (sala_id, sortBy) => {
+  return reservas.filter((r) => r.sala_id == sala_id);
 };
