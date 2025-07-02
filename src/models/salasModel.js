@@ -57,53 +57,36 @@ const salaNaData = (id, data = "0-0-0", horario = "10:00") => {
   const ENCONTRADA = sala != undefined;
 
   if (ENCONTRADA) {
-    function extrairDadosData(data = "0-0-0") {
-      const [diaDoMes, mes, ano] = data.split("-").map(Number);
-      const diaDaSemana = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"][new Date(ano, mes, diaDoMes).getDay()];
-      return [diaDoMes, mes, ano, diaDaSemana];
-    }
 
-    function compararDatas(dataAnalisar = "0-0-0", dataInicio = "0-0-0", dataFim = "0-0-0") {
-      dataAnalisar = extrairDadosData(dataAnalisar);
-      dataInicio = extrairDadosData(dataInicio);
-      dataFim = extrairDadosData(dataFim);
-
-      let taEntreAsDuas = true;
-      for (let i = 0; i < 3; i++) {
-        if (!(dataAnalisar[i] >= dataInicio[i] && dataAnalisar[i] <= dataFim[i])) taEntreAsDuas = false;
-      }
-      return taEntreAsDuas;
+    //vê se uma data ta entre outras duas
+    function compararDatas(dataAnalise, dataInicio, dataFim) {
+      dataAnalise = new Date(dataAnalise.split("-").reverse().join("-"));
+      dataInicio = new Date(dataInicio.split("-").reverse().join("-"));
+      dataFim = new Date(dataFim.split("-").reverse().join("-"));
+      return dataAnalise >= dataInicio && dataAnalise <= dataFim;
     }
 
     //vê se a reserva ocorre no dia da semana e horario informados
     function verificarDiaEHorario(dia, diasPossiveis = [], horario, horariosPossiveis = []) {
       const index = diasPossiveis.indexOf(dia);
       if (index == -1) return false;
+
       //converte os horarios do formato "14:30" para 14.5 ou "09:15" para 9.25
-      const [horaInicio, horaFim] = horariosPossiveis[index]
-        .split("-")
-        .map((s) => s.split(":").map(Number))
-        .map((h) => h[0] + h[1] / 60);
+      const [horaInicio, horaFim] = horariosPossiveis[index].split("-").map((s) => s.split(":").map(Number)).map((h) => h[0] + h[1] / 60);
       horario = horario.split(":").map(Number);
       horario = horario[0] + horario[1] / 60;
 
       return horaInicio <= horario && horaFim >= horario;
     }
 
-    try {
-      const reservasDaSala = reservas.filter((r) => r.sala_id == id);
-      const reservasNaData = reservasDaSala.filter((r) => compararDatas(data, r.inicio, r.fim));
-      const diaDaSemana = extrairDadosData()[4];
-      const reservasNoHorario = reservasNaData.filter((r) =>
-        verificarDiaEHorario(diaDaSemana, r.dias_da_semana, horario, r.horarios)
-      );
+    const diaDaSemana = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"][
+      new Date(data.split("-").reverse().join("-")).getDay()
+    ];
 
-      const reservaEncontrada = reservasNoHorario[0];
-      return reservaEncontrada;
-    } catch (err) {
-      //nenhuma reserva encontrada
-      return 0;
-    }
+    let reservasPossiveis = reservas.filter((r) => r.sala_id == id);
+    reservasPossiveis = reservasPossiveis.filter((r) => compararDatas(data, r.inicio, r.fim));
+    reservasPossiveis = reservasPossiveis.filter((r) => verificarDiaEHorario(diaDaSemana, r.dias_da_semana, horario, r.horarios));
+    return reservasPossiveis;
   }
   //sala não encontrada
   return -1;
