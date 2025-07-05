@@ -4,7 +4,7 @@
 //acabo de perceber que status nao vai existir...
 //uma sala estará LIVRE em algumas horas e RESERVADA em outras, n faz sentido ficar atualizando constantemente o banco de dados com isso
 //provavelmente será um dado que enviaremos ao front, mas nao vai existir no banco de dados
-const salas = [
+export const salas = [
   {
     id: 1,
     nome: "sala 5",
@@ -44,7 +44,7 @@ const salas = [
   { id: 13, nome: "teste", localizacao: "3..." },
   { id: 14, nome: "teste", localizacao: "3..." },
 ];
-const reservas = [
+export const reservas = [
   {
     nome: "dig",
     responsavel: "inga saboia",
@@ -83,7 +83,7 @@ const reservas = [
   },
 ];
 
-const mapaNaData = (data = "0-0-0", horario = "10:00") => {
+export const mapaNaData = (data = "0-0-0", horario = "10:00") => {
   const mapa = {};
 
   for (let sala of salas) {
@@ -96,7 +96,7 @@ const mapaNaData = (data = "0-0-0", horario = "10:00") => {
   return mapa;
 };
 
-const salaNaData = (id, data = "0-0-0", horario = "10:00") => {
+export const salaNaData = (id, data = "0-0-0", horario = "10:00") => {
   const sala = salas.find((s) => s.id == id);
   const ENCONTRADA = sala != undefined;
 
@@ -134,12 +134,19 @@ const salaNaData = (id, data = "0-0-0", horario = "10:00") => {
     reservasPossiveis = reservasPossiveis.filter((r) =>
       verificarDiaEHorario(diaDaSemana, r.dias_da_semana, horario, r.horarios)
     );
-    return reservasPossiveis[0];
+
+    return reservasPossiveis[0] ? reservasPossiveis[0] : "livre";
   }
   //sala não encontrada
   return -1;
 };
 
-const reservasDaSala = (sala_id, sortBy) => {
+export const reservasDaSala = (sala_id, sortBy) => {
   return reservas.filter((r) => r.sala_id == sala_id);
+};
+
+export const getSala = (sala_id) => {
+  return salas.filter((s) => {
+    sala_id == s.id;
+  });
 };
