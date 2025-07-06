@@ -112,12 +112,12 @@ model SolicitacaoReserva {
   dataPedido DateTime     @default(now())
   status     StatusPedido @default(AGUARDANDO)
   usuarioId  Int
+  reservaId Int?
 
   // Relações -> Local, usuário que pediu e objeto de reserva
   local     Local    @relation(fields: [localId], references: [id])
   usuario   Usuario  @relation(fields: [usuarioId], references: [id])
   reserva   Reserva? @relation(fields: [reservaId], references: [id])
-  reservaId Int?
 
   @@map("solicitacoes_reserva")
 }
