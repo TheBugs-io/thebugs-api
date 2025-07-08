@@ -1,5 +1,6 @@
 import prisma from "../database/prisma.js";
 
+//Todas as reservas aqui -> só ADMIN
 export const listarReservas = async () => {
   return await prisma.reserva.findMany();
 };
@@ -40,5 +41,22 @@ export const solicitarReserva = async (dadosReserva) => {
       dataFim: new Date(dataFim),
       usuarioId,
     },
+  });
+};
+
+//Vinculados ao modelo de Reserva
+export const deletarReserva = async (id) => {
+  const reserva = await prisma.reserva.findUnique({ where: { id } });
+
+  if (!reserva) {
+    throw new Error("Reserva não encontrada.");
+  }
+
+  return await prisma.solicitacaoReserva.delete({ where: { id } });
+};
+
+export const listarReservasUsuario = async (usuarioId) => {
+  return await prisma.reserva.findMany({
+    where: { usuarioId },
   });
 };
