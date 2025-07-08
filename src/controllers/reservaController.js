@@ -37,3 +37,35 @@ export const solicitarReserva = async (req, res) => {
     });
   }
 };
+
+export const cancelarReserva = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const reserva = await reservaModel.deletarReserva(id);
+
+    if (!reserva) {
+      return res.status(404).json({ error: "Reserva não encontrada." });
+    }
+
+    res.status(200).json({ message: "Reserva cancelada com sucesso." });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Erro ao cancelar a reserva." });
+  }
+};
+
+export const listarReservasUsuario = async (req, res) => {
+  try {
+    const usuarioId = req.user.id;
+
+    const reservas = await reservaModel.listarReservasUsuario(usuarioId);
+
+    if (reservas.length === 0) {
+      return res.status(404).json({ message: "Nenhuma reserva encontrada para este usuário." });
+    }
+
+    res.status(200).json({ reservas });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Erro ao listar reservas do usuário." });
+  }
+};
