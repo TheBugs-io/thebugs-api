@@ -5,10 +5,12 @@ import { autorizacaoSecretario } from '../middleware/authorizationAdm.js';
 
 const router = express.Router();
 // Protege as rotas abaixo com autorização de secretário
-router.use(autorizacaoSecretario)
-router.get('/', reservaController.listarReservas)
- // Protege as rotas abaixo com autenticação
+router.get('/', autorizacaoSecretario, reservaController.listarReservas)
+router.patch('/:id/status', autorizacaoSecretario, reservaController.atualizarStatusReserva);
+// Protege as rotas abaixo com autenticação
 router.use(authMiddleware)
-router.post('/solicitar-reserva', reservaController.solicitarReserva)
+router.post('/solicitar-reserva', authMiddleware, reservaController.solicitarReserva)
+router.delete('/:id', authMiddleware, reservaController.cancelarReserva);
+router.get('/minhas-reservas', authMiddleware, reservaController.listarReservasUsuario);
 
 export default router;
