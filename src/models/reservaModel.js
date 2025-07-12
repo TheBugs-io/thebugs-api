@@ -60,3 +60,16 @@ export const listarReservasUsuario = async (usuarioId) => {
     where: { usuarioId },
   });
 };
+
+export const atualizarStatusReserva = async (id, status) => {
+  const reserva = await prisma.reserva.findUnique({ where: { id } });
+
+  if (!reserva) {
+    throw new Error("Reserva não encontrada.");
+  }
+
+  return await prisma.reserva.update({
+    where: { id },
+    data: { status },
+  });
+};

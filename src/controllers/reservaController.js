@@ -69,3 +69,24 @@ export const listarReservasUsuario = async (req, res) => {
     res.status(500).json({ error: error.message || "Erro ao listar reservas do usuário." });
   }
 };
+
+export const atualizarStatusReserva = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: "Status é obrigatório." });
+    }
+
+    const reservaAtualizada = await reservaModel.atualizarStatusReserva(id, status);
+
+    if (!reservaAtualizada) {
+      return res.status(404).json({ error: "Reserva não encontrada." });
+    }
+
+    res.status(200).json({ message: "Status da reserva atualizado com sucesso.", reserva: reservaAtualizada });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Erro ao atualizar o status da reserva." });
+  }
+};
