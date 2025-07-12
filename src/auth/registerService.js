@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import validarEmailInstitucional from "../utils/validationEmail.js";
 import {
   enviarEmailConfirmacao,
-  notificarSecretaria,
+  notificarSecretaria, notificarStatusRegistro
 } from "../service/mailRegister.js";
 import gerarSenhaInicial from "../utils/generatePassword.js";
 
@@ -107,6 +107,7 @@ export const confirmarEmail = async (req, res) => {
 };
 
 //MARK: - Rotas de secretario
+//TODO: Talvez remover
 export const buscarPorToken = async (req, res) => {
   try {
     const { token } = req.params;
@@ -176,6 +177,17 @@ export const atualizarStatus = async (req, res) => {
       secretarioId
     );
 
+    if (status.toLowerCase() === 'rejeitado') {
+      const dadosSolicitacao = await registroModel.buscarPorId(id);
+      await notificarStatusRegistro(dadosSolicitacao.email, dadosSolicitacao.nome);
+      await deletarRegistro(id);
+    } else if (status.toLowerCase() === 'aprovado') {
+      const response = await confirmarCriacaoUsuarioInterno(Number(id));
+      if (response.erro) {
+        return res.status(response.status).json({ error: response.erro });
+      }
+    }
+
     res.status(200).json(atualizada);
   } catch (error) {
     console.error("Erro ao atualizar status:", error);
@@ -203,6 +215,7 @@ export const deletarSolicitacao = async (req, res) => {
   }
 };
 
+//MARK: - Lógica de criação de usuário
 export const confirmarCriacaoUsuario = async (req, res) => {
   try {
     const { id } = req.body;
@@ -268,5 +281,40 @@ export const confirmarCriacaoUsuario = async (req, res) => {
     return res
       .status(500)
       .json({ error: "Erro interno ao confirmar usuário." });
+  }
+};
+
+//WIP
+export const confirmarCriacaoUsuarioInterno = async (id) => {
+  try {
+    const solicitacao = await prisma.solicitacaoRegistro.findUnique({ where: { id } });
+    if (!solicitacao) return { erro: "Solicitação não encontrada.", status: 404 };
+
+    const jaExisteUsuario = await prisma.usuario.findUnique({ where: { email: solicitacao.email } });
+    if (jaExisteUsuario) return { erro: "Usuário já existe com esse e-mail.", status: 409 };
+
+    const senhaInicial = gerarSenhaInicial(10);
+    const senhaHash = await bcrypt.hash(senhaInicial, 10);
+
+    const novoUsuario = await prisma.usuario.create({
+      data: {
+        nomeCompleto: solicitacao.nomeCompleto,
+        nomeSocial: solicitacao.nomeSocial,
+        email: solicitacao.email,
+        senha: senhaHash,
+        tipo: solicitacao.tipoUsuario,
+      },
+    });
+
+    await prisma.solicitacaoRegistro.update({
+      where: { id: solicitacao.id },
+      data: { status: "APROVADO", usuarioId: novoUsuario.id },
+    });
+
+    // TODO: enviar senha por e-mail
+    return { usuario: novoUsuario, senha: senhaInicial };
+  } catch (error) {
+    console.error("Erro interno ao criar usuário:", error);
+    return { erro: "Erro interno ao criar usuário.", status: 500 };
   }
 };
