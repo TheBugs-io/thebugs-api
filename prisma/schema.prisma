@@ -9,17 +9,17 @@ datasource db {
 }
 
 model Local {
-  id                 Int                  @id @default(autoincrement())
-  nome               String
-  numeracaoSala      Int
-  descricao          String?
-  tipo               TipoSala?
-  localizacao        Andares?
-  status             StatusSala?
-  capacidade         Int
-  fotos              String?
-  reservas           Reserva[]
-  solicitacaoReserva SolicitacaoReserva[]
+  id            Int                  @id @default(autoincrement())
+  nome          String
+  numeracaoSala Int
+  descricao     String?
+  tipo          TipoSala?
+  localizacao   Andares?
+  status        StatusSala?
+  capacidade    Int
+  fotos         String?
+  reservas      Reserva[]
+  solicitacoes  SolicitacaoReserva[]
 }
 
 model SolicitacaoRegistro {
@@ -96,17 +96,6 @@ model Reserva {
   solicitacaoReserva SolicitacaoReserva[]
 }
 
-model RegistroReserva {
-  id           Int          @unique @default(autoincrement())
-  status       StatusPedido
-  mensagem     String?
-  data         DateTime     @default(now())
-  reservaId    Int
-  secretarioId Int
-  reserva      Reserva      @relation(fields: [reservaId], references: [id])
-  secretario   Secretario   @relation(fields: [secretarioId], references: [id])
-}
-
 model SolicitacaoReserva {
   id         Int          @id @default(autoincrement())
   localId    Int
@@ -116,10 +105,25 @@ model SolicitacaoReserva {
   dataPedido DateTime     @default(now())
   status     StatusPedido @default(AGUARDANDO)
   usuarioId  Int
-  reservaId  Int?
-  Local      Local        @relation(fields: [localId], references: [id])
-  Reserva    Reserva?     @relation(fields: [reservaId], references: [id])
-  Usuario    Usuario      @relation(fields: [usuarioId], references: [id])
+  reservaId Int?
+
+  // Relações -> Local, usuário que pediu e objeto de reserva
+  local     Local    @relation(fields: [localId], references: [id])
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  reserva   Reserva? @relation(fields: [reservaId], references: [id])
+
+  @@map("solicitacoes_reserva")
+}
+
+model RegistroReserva {
+  id           Int          @unique @default(autoincrement())
+  status       StatusPedido
+  mensagem     String?
+  data         DateTime     @default(now())
+  reservaId    Int
+  secretarioId Int
+  reserva      Reserva      @relation(fields: [reservaId], references: [id])
+  secretario   Secretario   @relation(fields: [secretarioId], references: [id])
 }
 
 enum VinculoInst {
