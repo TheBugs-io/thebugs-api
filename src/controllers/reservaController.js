@@ -1,4 +1,5 @@
 import * as reservaModel from '../models/reservaModel.js'
+import * as mailReserva from '../service/mailReserva.js';
 
 export const listarReservas = async (req, res) => {
   try {
@@ -87,17 +88,17 @@ export const atualizarStatusReserva = async (req, res) => {
 
     switch (status.toLowerCase()) {
       case 'cancelado':
-        await reservaModel.notificarAtualizacaoReservaAdm(reservaAtualizada.email, reservaAtualizada, req.user.nome);
+        await mailReserva.notificarAtualizacaoReservaAdm(reservaAtualizada.email, reservaAtualizada, req.user.nome);
         return res.status(200).json({ message: "Reserva cancelada com sucesso." });
       case 'pendente':
-        await reservaModel.notificarSecretariaPedido(reservaAtualizada);
+        await mailReserva.notificarSecretariaPedido(reservaAtualizada);
         break;
       case 'rejeitado':
-        await reservaModel.notificarUsuarioReserva(reservaAtualizada);
+        await mailReserva.notificarUsuarioReserva(reservaAtualizada);
         await reservaModel.deletarReserva(id);
         return res.status(200).json({ message: "Reserva rejeitada e deletada." });
       case 'aprovado':
-        await reservaModel.notificarUsuarioReserva(reservaAtualizada);
+        await mailReserva.notificarUsuarioReserva(reservaAtualizada);
         break;
       default:
         return res.status(400).json({ error: "Status inválido." });
