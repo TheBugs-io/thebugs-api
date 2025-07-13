@@ -15,7 +15,7 @@ router.get('/register/token/:token', registerService.buscarPorToken);
 router.get('/register/id/:id', registerService.buscarPorId);
 router.get('/register/email/:email', registerService.buscarPorEmail);
 router.get('/register/pendentes', registerService.listarPendentes);
-router.patch('/register/:id/status', registerService.atualizarStatus);
+router.patch('/register/:id', registerService.atualizarStatus);
 router.delete('/register/:id', registerService.deletarSolicitacao);
 
 export default router;

@@ -50,7 +50,7 @@ model Usuario {
   Reserva             Reserva[]
   Secretario          Secretario?
   SolicitacaoRegistro SolicitacaoRegistro[]
-  SolicitacaoReserva  SolicitacaoReserva[]
+  solicitacaoReserva  SolicitacaoReserva[]
 }
 
 model Docente {
@@ -61,13 +61,6 @@ model Docente {
   siape         String
   usuarioId     Int           @unique
   usuario       Usuario       @relation(fields: [usuarioId], references: [id])
-}
-
-enum VinculoInst {
-  EFETIVO
-  SUBSTITUTO
-  TERCEIRIZADO
-  OUTRO
 }
 
 model Discente {
@@ -100,7 +93,7 @@ model Reserva {
   registros          RegistroReserva[]
   local              Local                @relation(fields: [localId], references: [id])
   usuario            Usuario              @relation(fields: [usuarioId], references: [id])
-  SolicitacaoReserva SolicitacaoReserva[]
+  solicitacaoReserva SolicitacaoReserva[]
 }
 
 model SolicitacaoReserva {
@@ -112,12 +105,10 @@ model SolicitacaoReserva {
   dataPedido DateTime     @default(now())
   status     StatusPedido @default(AGUARDANDO)
   usuarioId  Int
-  reservaId Int?
-
-  // Relações -> Local, usuário que pediu e objeto de reserva
-  local     Local    @relation(fields: [localId], references: [id])
-  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
-  reserva   Reserva? @relation(fields: [reservaId], references: [id])
+  reservaId  Int?
+  local      Local        @relation(fields: [localId], references: [id])
+  reserva    Reserva?     @relation(fields: [reservaId], references: [id])
+  usuario    Usuario      @relation(fields: [usuarioId], references: [id])
 
   @@map("solicitacoes_reserva")
 }
@@ -131,6 +122,13 @@ model RegistroReserva {
   secretarioId Int
   reserva      Reserva      @relation(fields: [reservaId], references: [id])
   secretario   Secretario   @relation(fields: [secretarioId], references: [id])
+}
+
+enum VinculoInst {
+  EFETIVO
+  SUBSTITUTO
+  TERCEIRIZADO
+  OUTRO
 }
 
 enum TipoSala {
@@ -181,6 +179,7 @@ enum TipoUsuario {
 
 enum StatusPedido {
   AGUARDANDO
+  CANCELADO
   APROVADO
   REJEITADO
 }
