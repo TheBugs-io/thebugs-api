@@ -1,16 +1,8 @@
-import { createTransport } from "nodemailer";
+import { transporter } from "../utils/transporterMailConfig.js";
 import prisma from "../database/prisma.js";
 import { gerarHtmlSecretariaContent } from "../template/mailRequestRegister.js";
 import { mailConfirmToken } from "../template/mailEmailConfirm.js";
 import { disapprovedRegisterRequest } from "../template/mailDisapprovedRequest.js"
-
-const transporter = createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
 
 export const enviarEmailConfirmacao = async (email, token) => {
   const link = `${process.env.FRONTEND_URL}/confirmar?token=${token}`;
