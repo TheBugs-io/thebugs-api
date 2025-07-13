@@ -9,16 +9,17 @@ datasource db {
 }
 
 model Local {
-  id            Int         @id @default(autoincrement())
-  nome          String
-  numeracaoSala Int
-  descricao     String?
-  tipo          TipoSala?
-  localizacao   Andares?
-  status        StatusSala?
-  capacidade    Int
-  fotos         String?
-  reservas      Reserva[]
+  id                 Int                  @id @default(autoincrement())
+  nome               String
+  numeracaoSala      Int
+  descricao          String?
+  tipo               TipoSala?
+  localizacao        Andares?
+  status             StatusSala?
+  capacidade         Int
+  fotos              String?
+  reservas           Reserva[]
+  solicitacaoReserva SolicitacaoReserva[]
 }
 
 model SolicitacaoRegistro {
@@ -49,6 +50,7 @@ model Usuario {
   Reserva             Reserva[]
   Secretario          Secretario?
   SolicitacaoRegistro SolicitacaoRegistro[]
+  solicitacaoReserva  SolicitacaoReserva[]
 }
 
 model Docente {
@@ -61,21 +63,14 @@ model Docente {
   usuario       Usuario       @relation(fields: [usuarioId], references: [id])
 }
 
-enum VinculoInst {
-  EFETIVO
-  SUBSTITUTO
-  TERCEIRIZADO
-  OUTRO
-}
-
 model Discente {
-  id           Int           @id @default(autoincrement())
-  matricula    String
+  id            Int           @id @default(autoincrement())
+  matricula     String
   nivelSuperior NivelSuperior
-  smd          Boolean
-  curso        String
-  usuarioId    Int           @unique
-  usuario      Usuario       @relation(fields: [usuarioId], references: [id])
+  smd           Boolean
+  curso         String
+  usuarioId     Int           @unique
+  usuario       Usuario       @relation(fields: [usuarioId], references: [id])
 }
 
 model Secretario {
@@ -87,17 +82,18 @@ model Secretario {
 }
 
 model Reserva {
-  id           Int               @unique @default(autoincrement())
-  localId      Int
-  tipo         TipoReserva
-  dataInicio   DateTime
-  dataFim      DateTime
-  dataPedido   DateTime          @default(now())
-  statusPedido StatusPedido      @default(AGUARDANDO)
-  usuarioId    Int
-  registros    RegistroReserva[]
-  local        Local             @relation(fields: [localId], references: [id])
-  usuario      Usuario           @relation(fields: [usuarioId], references: [id])
+  id                 Int                  @unique @default(autoincrement())
+  localId            Int
+  tipo               TipoReserva
+  dataInicio         DateTime
+  dataFim            DateTime
+  dataPedido         DateTime             @default(now())
+  statusPedido       StatusPedido         @default(AGUARDANDO)
+  usuarioId          Int
+  registros          RegistroReserva[]
+  local              Local                @relation(fields: [localId], references: [id])
+  usuario            Usuario              @relation(fields: [usuarioId], references: [id])
+  solicitacaoReserva SolicitacaoReserva[]
 }
 
 model RegistroReserva {
@@ -109,6 +105,28 @@ model RegistroReserva {
   secretarioId Int
   reserva      Reserva      @relation(fields: [reservaId], references: [id])
   secretario   Secretario   @relation(fields: [secretarioId], references: [id])
+}
+
+model SolicitacaoReserva {
+  id         Int          @id @default(autoincrement())
+  localId    Int
+  tipo       TipoReserva
+  dataInicio DateTime
+  dataFim    DateTime
+  dataPedido DateTime     @default(now())
+  status     StatusPedido @default(AGUARDANDO)
+  usuarioId  Int
+  reservaId  Int?
+  Local      Local        @relation(fields: [localId], references: [id])
+  Reserva    Reserva?     @relation(fields: [reservaId], references: [id])
+  Usuario    Usuario      @relation(fields: [usuarioId], references: [id])
+}
+
+enum VinculoInst {
+  EFETIVO
+  SUBSTITUTO
+  TERCEIRIZADO
+  OUTRO
 }
 
 enum TipoSala {
@@ -146,6 +164,7 @@ enum NivelSuperior {
 enum TipoReserva {
   DISCIPLINA
   OFICINA
+  EVENTO
   OUTRO
 }
 
