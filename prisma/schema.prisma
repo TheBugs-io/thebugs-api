@@ -196,7 +196,6 @@ enum StatusSolicitacaoRegistro {
 }
 
 enum DiaSemana {
-  DOMINGO
   SEGUNDA_FEIRA
   TERCA_FEIRA
   QUARTA_FEIRA
