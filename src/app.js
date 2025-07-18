@@ -13,6 +13,8 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/reservas", reservasRoute);
 app.use("/users", userRoutes);
-app.use("/s", salasRoutes);
+app.use("/salas", salasRoutes);
 
 export default app;
+//fazer as rotas de salas (inserir + consultar mapa)
+//fazer as rotas de favoritos (favoritar + consultar)
