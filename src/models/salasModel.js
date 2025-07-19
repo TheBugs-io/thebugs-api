@@ -10,11 +10,6 @@ const TipoSala = [
   "REUNIAO",
 ];
 const Andares = ["PRIMEIRO_ANDAR", "SEGUNDO_ANDAR", "TERCEIRO_ANDAR"];
-//vai precisar das tables: usuarios, salas e reservas
-
-//acabo de perceber que status nao vai existir...
-//uma sala estará LIVRE em algumas horas e RESERVADA em outras, n faz sentido ficar atualizando constantemente o banco de dados com isso
-//provavelmente será um dado que enviaremos ao front, mas nao vai existir no banco de dados
 
 export const criarSala = async ({ nome, descricao, tipo, andar, numeracao, capacidade }) => {
   nome = nome.trim();
@@ -34,6 +29,16 @@ export const criarSala = async ({ nome, descricao, tipo, andar, numeracao, capac
   }
 
   throw new Error("Cheque os enums da requisição");
+};
+
+export const deletarSala = async (sala_id) => {
+  const sala = await prisma.local.delete({ where: { id: Number(sala_id) } });
+  return sala;
+};
+
+export const editarSala = async (sala_id, novosDados) => {
+  const atualizada = await prisma.local.update({ where: { id: sala_id }, data: { ...novosDados } });
+  return atualizada;
 };
 
 export const mapaNaData = async (data = "00-00-0000T10:00") => {
@@ -113,7 +118,6 @@ export const salaNaData = async (id_sala, data = "00-01-0000T10:00") => {
 };
 
 export const reservasDaSala = async (sala_id) => {
-  // return reservas.filter((r) => r.sala_id == sala_id);
   const reservas = await prisma.reserva.findMany({ where: { localId: sala_id } });
   return reservas;
 };

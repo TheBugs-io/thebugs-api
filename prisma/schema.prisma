@@ -107,15 +107,18 @@ model Reserva {
 }
 
 model SolicitacaoReserva {
-  id         Int          @id @default(autoincrement())
-  localId    Int
-  tipo       TipoReserva
-  dataInicio DateTime
-  dataFim    DateTime
-  dataPedido DateTime     @default(now())
-  status     StatusPedido @default(AGUARDANDO)
-  usuarioId  Int
-  reservaId  Int?
+  id            Int          @id @default(autoincrement())
+  localId       Int
+  tipo          TipoReserva
+  dataInicio    DateTime
+  dataFim       DateTime
+  horarioInicio Int
+  horarioFim    Int
+  repeteEm      DiaSemana[]
+  dataPedido    DateTime     @default(now())
+  status        StatusPedido @default(AGUARDANDO)
+  usuarioId     Int
+  reservaId     Int?
 
   // Relações -> Local, usuário que pediu e objeto de reserva
   local   Local    @relation(fields: [localId], references: [id])

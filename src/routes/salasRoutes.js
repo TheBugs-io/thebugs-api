@@ -4,7 +4,7 @@ import { autorizacaoSecretario } from "../middleware/authorizationAdm.js";
 const router = express.Router();
 
 router.post("/criar", autorizacaoSecretario, salasController.criarSala);
-// router.post("/criar", salasController.criarSala);
+router.post("/editar", autorizacaoSecretario, salasController.editarSala);
 router.get("/mapa", salasController.mapaNaData);
 router.get("/na-data", salasController.salaNaData);
 router.get("/sala", salasController.getSala);

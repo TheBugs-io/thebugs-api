@@ -50,3 +50,22 @@ export const getSala = async (req, res) => {
   const sala = await salaModel.getSala(Number(sala_id));
   return res.send(sala);
 };
+
+//precisa de 'novosDados' no body
+export const editarSala = async (req, res) => {
+  const { sala_id, novosDados } = req.body;
+
+  const permitido = ["nome", "numeracaoSala", "descricao", "tipo", "localizacao", "status", "capacidade"];
+  function validarDados(dataObj) {
+    for (let key in dataObj) {
+      if (!permitido.includes(key)) return false;
+    }
+    return true;
+  }
+  let FORMATO_VALIDO = typeof novosDados == "object" && validarDados(novosDados);
+  if (FORMATO_VALIDO) {
+    const editada = await salaModel.editarSala(sala_id, novosDados);
+    return res.status(200).json(editada);
+  }
+  return res.status(400).json({ message: `Envie 'novosDados' no body com algum dos campos permitidos (${permitido})` });
+};
