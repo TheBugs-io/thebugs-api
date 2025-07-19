@@ -62,10 +62,22 @@ export const editarSala = async (req, res) => {
     }
     return true;
   }
-  let FORMATO_VALIDO = typeof novosDados == "object" && validarDados(novosDados);
+  const FORMATO_VALIDO = typeof sala_id == "number" && typeof novosDados == "object" && validarDados(novosDados);
+
   if (FORMATO_VALIDO) {
     const editada = await salaModel.editarSala(sala_id, novosDados);
-    return res.status(200).json(editada);
+    return res.status(200).json({ message: "Editada com sucesso", data: editada });
   }
-  return res.status(400).json({ message: `Envie 'novosDados' no body com algum dos campos permitidos (${permitido})` });
+  return res
+    .status(400)
+    .json({ message: `Envie 'sala_id' inteiro e 'novosDados' no body com algum dos campos permitidos (${permitido})` });
+};
+
+export const deletarSala = async (req, res) => {
+  const { sala_id } = req.body;
+  if (typeof sala_id == "number") {
+    const deletada = await salaModel.deletarSala(sala_id);
+    return res.satus(200).json({ message: "Deletada com sucesso", data: deletada });
+  }
+  return res.status(400).json({ message: "'sala_id' deve ser inteiro" });
 };
