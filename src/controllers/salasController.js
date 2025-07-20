@@ -24,14 +24,13 @@ export const mapaNaData = async (req, res) => {
 
 //pega oq ta acontecendo naquela sala naquele horario (util pra favoritos, pra ver oq ta acontecendo ou vai acontecer)
 export const salaNaData = async (req, res) => {
-  const { sala, data } = req.query;
+  const { sala_id, data } = req.query;
   const [dia, hora] = data.split("T");
-  console.log(dia, hora);
   const FORMATO_VALIDO =
-    /^[0-9]{2}-[0-9]{2}-[0-9]{4}$/.test(dia) && /^[0-9]{2}:[0-9]{2}$/.test(hora) && /[0-9]{1,6}/.test(sala);
+    /^[0-9]{2}-[0-9]{2}-[0-9]{4}$/.test(dia) && /^[0-9]{2}:[0-9]{2}$/.test(hora) && /[0-9]{1,6}/.test(sala_id);
   if (!FORMATO_VALIDO) return res.sendStatus(400);
 
-  const reserva = await salaModel.salaNaData(sala, data);
+  const reserva = await salaModel.salaNaData(sala_id, data);
   return res.send(reserva);
 };
 

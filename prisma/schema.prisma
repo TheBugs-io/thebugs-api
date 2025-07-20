@@ -48,6 +48,7 @@ model Usuario {
   Discente            Discente?
   Docente             Docente?
   Reserva             Reserva[]
+  favoritos           Reserva[]             @relation("Favoritos")
   Secretario          Secretario?
   SolicitacaoRegistro SolicitacaoRegistro[]
   SolicitacaoReserva  SolicitacaoReserva[]
@@ -90,20 +91,22 @@ model Secretario {
 
 model Reserva {
   id                 Int                  @id @unique @default(autoincrement())
+  nome               String
   localId            Int
   tipo               TipoReserva
   dataInicio         DateTime
   dataFim            DateTime
-  horarioInicio      Int?
-  horarioFim         Int?
+  horarioInicio      Int
+  horarioFim         Int
   repeteEm           DiaSemana[]
   dataPedido         DateTime             @default(now())
   statusPedido       StatusPedido         @default(AGUARDANDO)
-  usuarioId          Int
+  responsavelId      Int
   registros          RegistroReserva[]
   local              Local                @relation(fields: [localId], references: [id])
-  usuario            Usuario              @relation(fields: [usuarioId], references: [id])
+  responsavel        Usuario              @relation(fields: [responsavelId], references: [id])
   SolicitacaoReserva SolicitacaoReserva[]
+  favoritadoPor      Usuario[]            @relation("Favoritos")
 }
 
 model SolicitacaoReserva {
