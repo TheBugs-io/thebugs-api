@@ -74,7 +74,9 @@ export const mapaNaData = async (data = "00-00-0000T10:00") => {
   // });
 
   const mapa = await prisma.local.findMany({
-    include: {
+    select: {
+      id: true,
+      nome: true,
       reservas: {
         where: {
           dataInicio: { lte: dataObj },
