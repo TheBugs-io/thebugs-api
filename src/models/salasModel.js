@@ -62,15 +62,32 @@ export const mapaNaData = async (data = "00-00-0000T10:00") => {
     "SABADO",
   ][dataObj.getDay()];
 
-  const mapa = await prisma.reserva.findMany({
-    where: {
-      dataInicio: { lte: dataObj },
-      dataFim: { gte: dataObj },
-      horarioInicio: { lte: hora },
-      horarioFim: { gt: hora },
-      repeteEm: { has: diaSemana },
+  // const mapa = await prisma.reserva.findMany({
+  //   where: {
+  //     dataInicio: { lte: dataObj },
+  //     dataFim: { gte: dataObj },
+  //     horarioInicio: { lte: hora },
+  //     horarioFim: { gt: hora },
+  //     OR: [{ repeteEm: { has: diaSemana } }, { repete: false }],
+  //   },
+  //   include: { local: { select: { nome: true, localizacao: true, numeracaoSala: true } } },
+  // });
+
+  const mapa = await prisma.local.findMany({
+    include: {
+      reservas: {
+        where: {
+          dataInicio: { lte: dataObj },
+          dataFim: { gte: dataObj },
+          horarioInicio: { lte: hora },
+          horarioFim: { gt: hora },
+          OR: [{ repeteEm: { has: diaSemana } }, { repete: false }],
+        },
+        select: {
+          nome: true,
+        },
+      },
     },
-    include: { local: { select: { nome: true, localizacao: true, numeracaoSala: true } } },
   });
 
   return mapa;

@@ -98,6 +98,7 @@ model Reserva {
   dataFim            DateTime
   horarioInicio      Int
   horarioFim         Int
+  repete             Boolean?
   repeteEm           DiaSemana[]
   dataPedido         DateTime             @default(now())
   statusPedido       StatusPedido         @default(AGUARDANDO)
@@ -160,8 +161,7 @@ enum Andares {
 }
 
 enum StatusSala {
-  LIVRE
-  RESERVADA
+  FUNCIONAL
   EM_MANUTENCAO
   PROBLEMA_TECNICO
 }
