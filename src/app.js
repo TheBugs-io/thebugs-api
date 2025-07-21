@@ -4,6 +4,7 @@ import authRoutes from "./routes/authRoutes.js";
 import reservasRoute from "./routes/reservaRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import salasRoutes from "./routes/salasRoutes.js";
+import favRoutes from "./routes/favRoutes.js";
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use("/api/auth", authRoutes);
 app.use("/reservas", reservasRoute);
 app.use("/users", userRoutes);
 app.use("/salas", salasRoutes);
+app.use("/users", favRoutes);
 
 export default app;
 //fazer as rotas de salas (inserir + consultar mapa)
