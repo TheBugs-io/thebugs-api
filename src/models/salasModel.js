@@ -83,9 +83,6 @@ export const mapaNaData = async (data = "00-00-0000T10:00") => {
           horarioFim: { gt: hora },
           OR: [{ repeteEm: { has: diaSemana } }, { repete: false }],
         },
-        select: {
-          nome: true,
-        },
       },
     },
   });
