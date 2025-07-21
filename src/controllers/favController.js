@@ -4,13 +4,21 @@ export const createFavorito = async (req, res) => {
   const { reserva_id } = req.body;
   const { user } = req;
 
-  const usuario = await prisma.usuario.update({
-    where: { id: Number(user.id) },
-    data: { favoritos: { connect: { id: Number(reserva_id) } } },
-    include: { favoritos: { select: { nome: true } } },
-  });
+  try {
+    const RESERVA_EXISTE = await prisma.reserva.findUnique({ where: { id: Number(reserva_id) } });
+    if (RESERVA_EXISTE) {
+      const usuario = await prisma.usuario.update({
+        where: { id: Number(user.id) },
+        data: { favoritos: { connect: { id: Number(reserva_id) } } },
+        include: { favoritos: { select: { nome: true } } },
+      });
 
-  return res.json({ message: "Favorito adicionado", data: usuario.favoritos });
+      return res.json({ message: "Favorito adicionado", data: usuario.favoritos });
+    }
+    return res.status(400).json({ message: "Reserva não existe" });
+  } catch (error) {
+    return res.status(500).json({ message: "Id incompativel ou inexistente" });
+  }
 };
 
 export const deleteFavorito = async (req, res) => {
