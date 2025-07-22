@@ -3,6 +3,7 @@ import * as salasController from "../controllers/salasController.js";
 import { autorizacaoSecretario } from "../middleware/authorizationAdm.js";
 const router = express.Router();
 
+router.get("/", salasController.listarSalas);
 router.get("/mapa", salasController.mapaNaData);
 router.get("/na-data", salasController.salaNaData);
 router.get("/sala", salasController.getSala);

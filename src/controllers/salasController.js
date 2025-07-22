@@ -1,5 +1,17 @@
 import * as salaModel from "../models/salasModel.js";
 
+export const listarSalas = async (req, res) => {
+  try {
+    const salas = await salaModel.listarSalas();
+    if (salas.length === 0) {
+      return res.status(200).json({ message: "Nenhuma sala encontrada.", salas: [] });
+    }
+  } catch (error) {
+    console.error("Erro ao listar salas:", error);
+    return res.status(500).json({ error: "Erro ao buscar salas." });
+  }
+};
+
 //precisa de 'sala' no body com os dados necessarios
 export const criarSala = async (req, res) => {
   const { sala } = req.body;
