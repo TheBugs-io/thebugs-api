@@ -39,6 +39,18 @@ export const solicitarReserva = async (dadosReserva) => {
   });
 };
 
+export const buscarSolicitacaoReserva = async (id) => {
+  const solicitacao = await prisma.solicitacaoReserva.findUnique({
+    where: { id },
+  });
+
+  if (!solicitacao) {
+    throw new Error("Solicitação de reserva não encontrada.");
+  }
+
+  return solicitacao;
+}
+
 //Vinculados ao modelo de Reserva
 export const deletarReserva = async (id) => {
   const reserva = await prisma.reserva.findUnique({ where: { id } });
@@ -68,3 +80,4 @@ export const atualizarStatusReserva = async (id, status) => {
     data: { status },
   });
 };
+

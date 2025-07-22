@@ -5,7 +5,8 @@ import { v4 as uuidv4 } from "uuid";
 import validarEmailInstitucional from "../utils/validationEmail.js";
 import {
   enviarEmailConfirmacao,
-  notificarSecretaria, notificarStatusRegistro
+  notificarSecretaria, notificarStatusRegistro,
+  notificarUsuario
 } from "../service/mailRegister.js";
 import gerarSenhaInicial from "../utils/generatePassword.js";
 
@@ -169,18 +170,20 @@ export const listarPendentes = async (req, res) => {
 export const atualizarStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, secretarioId } = req.body;
+    const { status } = req.body;
+
+    const secretarioId = req.user?.tipo === "SECRETARIO" ? req.user.id : null;
 
     const atualizada = await registroModel.atualizarStatusSolicitacao(
-      id,
+      Number(id),
       status,
       secretarioId
     );
 
     if (status.toLowerCase() === 'rejeitado') {
-      const dadosSolicitacao = await registroModel.buscarPorId(id);
+      const dadosSolicitacao = await registroModel.buscarPorId(Number(id));
       await notificarStatusRegistro(dadosSolicitacao.email, dadosSolicitacao.nome);
-      await deletarRegistro(id);
+      await deletarRegistro(Number(id));
     } else if (status.toLowerCase() === 'aprovado') {
       const response = await confirmarCriacaoUsuarioInterno(Number(id));
       if (response.erro) {
@@ -216,75 +219,6 @@ export const deletarSolicitacao = async (req, res) => {
 };
 
 //MARK: - Lógica de criação de usuário
-export const confirmarCriacaoUsuario = async (req, res) => {
-  try {
-    const { id } = req.body;
-
-    if (!id) {
-      return res
-        .status(400)
-        .json({ error: "ID é obrigatório para confirmação." });
-    }
-
-    const solicitacao = await prisma.solicitacaoRegistro.findUnique({
-      where: { id: Number(id) },
-    });
-
-    if (!solicitacao) {
-      return res.status(404).json({ error: "Solicitação não encontrada." });
-    }
-
-    const jaExisteUsuario = await prisma.usuario.findUnique({
-      where: { email: solicitacao.email },
-    });
-
-    if (jaExisteUsuario) {
-      return res
-        .status(409)
-        .json({ error: "Usuário já criado com esse e-mail." });
-    }
-
-    const senhaInicial = gerarSenhaInicial(10);
-    const senhaHash = await bcrypt.hash(senhaInicial, 10);
-
-    const novoUsuario = await prisma.usuario.create({
-      data: {
-        nomeCompleto: solicitacao.nomeCompleto,
-        nomeSocial: solicitacao.nomeSocial,
-        email: solicitacao.email,
-        senha: senhaHash,
-        tipo: solicitacao.tipoUsuario,
-      },
-    });
-
-    await prisma.solicitacaoRegistro.update({
-      where: { id: solicitacao.id },
-      data: {
-        status: "APROVADO",
-        usuarioId: novoUsuario.id,
-      },
-    });
-
-    return res.status(201).json({
-      message: "Usuário criado com sucesso a partir da solicitação.",
-      usuario: {
-        id: novoUsuario.id,
-        nomeCompleto: novoUsuario.nomeCompleto,
-        email: novoUsuario.email,
-        tipoUsuario: novoUsuario.tipoUsuario,
-        status: novoUsuario.status,
-      },
-      senhaInicial, // TODO:  enviar por e-mail depois
-    });
-  } catch (error) {
-    console.error("Erro ao confirmar usuário:", error);
-    return res
-      .status(500)
-      .json({ error: "Erro interno ao confirmar usuário." });
-  }
-};
-
-//WIP
 export const confirmarCriacaoUsuarioInterno = async (id) => {
   try {
     const solicitacao = await prisma.solicitacaoRegistro.findUnique({ where: { id } });
@@ -311,7 +245,7 @@ export const confirmarCriacaoUsuarioInterno = async (id) => {
       data: { status: "APROVADO", usuarioId: novoUsuario.id },
     });
 
-    // TODO: enviar senha por e-mail
+    await notificarUsuario(novoUsuario.email, senhaInicial);
     return { usuario: novoUsuario, senha: senhaInicial };
   } catch (error) {
     console.error("Erro interno ao criar usuário:", error);

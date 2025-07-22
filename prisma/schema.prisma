@@ -51,7 +51,7 @@ model Usuario {
   favoritos           Reserva[]             @relation("Favoritos")
   Secretario          Secretario?
   SolicitacaoRegistro SolicitacaoRegistro[]
-  SolicitacaoReserva  SolicitacaoReserva[]
+  solicitacaoReserva  SolicitacaoReserva[]
 }
 
 model Docente {
@@ -62,13 +62,6 @@ model Docente {
   siape         String
   usuarioId     Int           @unique
   usuario       Usuario       @relation(fields: [usuarioId], references: [id])
-}
-
-enum VinculoInst {
-  EFETIVO
-  SUBSTITUTO
-  TERCEIRIZADO
-  OUTRO
 }
 
 model Discente {
@@ -143,6 +136,13 @@ model RegistroReserva {
   secretario   Secretario   @relation(fields: [secretarioId], references: [id])
 }
 
+enum VinculoInst {
+  EFETIVO
+  SUBSTITUTO
+  TERCEIRIZADO
+  OUTRO
+}
+
 enum TipoSala {
   SALA_AULA
   LABORATORIO
@@ -190,6 +190,7 @@ enum TipoUsuario {
 
 enum StatusPedido {
   AGUARDANDO
+  CANCELADO
   APROVADO
   REJEITADO
 }
