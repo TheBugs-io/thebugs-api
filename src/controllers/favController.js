@@ -1,15 +1,15 @@
 import prisma from "../database/prisma.js";
 
 export const createFavorito = async (req, res) => {
-  const { reserva_id } = req.body;
+  const { local_id } = req.body;
   const { user } = req;
 
   try {
-    const RESERVA_EXISTE = await prisma.reserva.findUnique({ where: { id: Number(reserva_id) } });
-    if (RESERVA_EXISTE) {
+    const LOCAL_EXISTE = await prisma.local.findUnique({ where: { id: Number(local_id) } });
+    if (LOCAL_EXISTE) {
       const usuario = await prisma.usuario.update({
         where: { id: Number(user.id) },
-        data: { favoritos: { connect: { id: Number(reserva_id) } } },
+        data: { favoritos: { connect: { id: Number(local_id) } } },
         include: { favoritos: { select: { nome: true } } },
       });
 
@@ -22,14 +22,14 @@ export const createFavorito = async (req, res) => {
 };
 
 export const deleteFavorito = async (req, res) => {
-  const { reserva_id } = req.body;
+  const { local_id } = req.body;
   const { user } = req;
   try {
     const usuario = await prisma.usuario.update({
       where: { id: Number(user.id) },
       data: {
         favoritos: {
-          disconnect: { id: Number(reserva_id) },
+          disconnect: { id: Number(local_id) },
         },
       },
       include: { favoritos: { select: { nome: true } } },
