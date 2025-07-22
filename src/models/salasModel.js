@@ -1,4 +1,6 @@
 import prisma from "../database/prisma.js";
+import dataBrasilia from "../utils/datas.js";
+
 const TipoSala = [
   "SALA_AULA",
   "LABORATORIO",
@@ -45,12 +47,11 @@ export const mapaNaData = async (data = "00-00-0000T10:00") => {
   const [dia, _] = data.split("T");
   const hora = Number(_.slice(0, 2));
 
-  const dataObj = new Date(
-    ...dia
-      .split("-")
-      .reverse()
-      .map((v, i) => (i == 1 ? Number(v) - 1 : Number(v)))
-  );
+  // ...dia
+  //   .split("-")
+  //   .reverse()
+  //   .map((v, i) => (i == 1 ? Number(v) - 1 : Number(v)))
+  const dataObj = dataBrasilia({ string: data });
 
   const diaSemana = [
     "DOMINGO",
@@ -61,17 +62,6 @@ export const mapaNaData = async (data = "00-00-0000T10:00") => {
     "SEXTA_FEIRA",
     "SABADO",
   ][dataObj.getDay()];
-
-  // const mapa = await prisma.reserva.findMany({
-  //   where: {
-  //     dataInicio: { lte: dataObj },
-  //     dataFim: { gte: dataObj },
-  //     horarioInicio: { lte: hora },
-  //     horarioFim: { gt: hora },
-  //     OR: [{ repeteEm: { has: diaSemana } }, { repete: false }],
-  //   },
-  //   include: { local: { select: { nome: true, localizacao: true, numeracaoSala: true } } },
-  // });
 
   const mapa = await prisma.local.findMany({
     select: {
@@ -85,6 +75,9 @@ export const mapaNaData = async (data = "00-00-0000T10:00") => {
           horarioFim: { gt: hora },
           OR: [{ repeteEm: { has: diaSemana } }, { repete: false }],
         },
+        include: {
+          responsavel: { select: { nomeCompleto: true, tipo: true } },
+        },
       },
     },
   });
@@ -92,20 +85,16 @@ export const mapaNaData = async (data = "00-00-0000T10:00") => {
   return mapa;
 };
 
-export const salaNaData = async (id_sala, data = "00-01-0000T10:00") => {
+export const salaNaData = async (id_sala, data = "0000-00-01T10:00") => {
   const sala = await prisma.local.findUnique({ where: { id: Number(id_sala) } });
   const ENCONTRADA = sala != null;
 
   if (ENCONTRADA) {
-    const [dia, _] = data.split("T");
-    const hora = Number(_.slice(0, 2));
+    // const [dia, _] = data.split("T");
+    const hora = Number(data.split("T")[1].slice(0, 2));
 
-    const dataObj = new Date(
-      ...dia
-        .split("-")
-        .reverse()
-        .map((v, i) => (i == 1 ? Number(v) - 1 : Number(v)))
-    );
+    const dataObj = dataBrasilia({ string: data });
+
     const diaSemana = [
       "DOMINGO",
       "SEGUNDA_FEIRA",
@@ -116,6 +105,8 @@ export const salaNaData = async (id_sala, data = "00-01-0000T10:00") => {
       "SABADO",
     ][dataObj.getDay()];
 
+    console.log(dataObj.toISOString(), data, diaSemana, hora);
+
     const reserva = await prisma.reserva.findFirst({
       where: {
         localId: Number(id_sala),
@@ -123,7 +114,10 @@ export const salaNaData = async (id_sala, data = "00-01-0000T10:00") => {
         dataFim: { gte: dataObj },
         horarioInicio: { lte: hora },
         horarioFim: { gt: hora },
-        repeteEm: { has: diaSemana },
+        OR: [{ repeteEm: { has: diaSemana } }, { repete: false }],
+      },
+      include: {
+        responsavel: { select: { nomeCompleto: true, tipo: true } },
       },
     });
     if (reserva == null) return "livre";

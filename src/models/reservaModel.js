@@ -1,4 +1,5 @@
 import prisma from "../database/prisma.js";
+import dataBrasilia from "../utils/datas.js";
 
 //Todas as reservas aqui -> só ADMIN
 export const listarReservas = async () => {
@@ -6,13 +7,7 @@ export const listarReservas = async () => {
 };
 
 export const solicitarReserva = async (dadosReserva) => {
-  const {
-    localId,
-    tipo,
-    dataInicio,
-    dataFim,
-    usuarioId,
-  } = dadosReserva;
+  const { localId, tipo, dataInicio, dataFim, usuarioId } = dadosReserva;
 
   const camposObrigatorios = { localId, tipo, dataInicio, dataFim, usuarioId };
 
@@ -27,7 +22,7 @@ export const solicitarReserva = async (dadosReserva) => {
   //Os dois tem que existir pra que a solicitação seja feita, aqui com a Promise eu testo os dois casos, e retorno os erros pelos ifs em baixo
   const [local, usuario] = await Promise.all([
     prisma.local.findUnique({ where: { id: localId } }),
-    prisma.usuario.findUnique({ where: { id: usuarioId } })
+    prisma.usuario.findUnique({ where: { id: usuarioId } }),
   ]);
 
   if (!local) throw new Error("Local informado não existe.");
@@ -37,8 +32,8 @@ export const solicitarReserva = async (dadosReserva) => {
     data: {
       localId,
       tipo,
-      dataInicio: new Date(dataInicio),
-      dataFim: new Date(dataFim),
+      dataInicio: dataBrasilia({ string: dataInicio }),
+      dataFim: dataBrasilia({ string: dataFim }),
       usuarioId,
     },
   });

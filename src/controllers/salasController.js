@@ -15,7 +15,7 @@ export const criarSala = async (req, res) => {
 export const mapaNaData = async (req, res) => {
   const { data } = req.query;
   const [dia, hora] = data.split("T");
-  const FORMATO_VALIDO = /^[0-9]{2}-[0-9]{2}-[0-9]{4}$/.test(dia) && /^[0-9]{2}:[0-9]{2}$/.test(hora);
+  const FORMATO_VALIDO = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(dia) && /^[0-9]{2}:[0-9]{2}$/.test(hora);
   if (!FORMATO_VALIDO) return res.sendStatus(400);
 
   const mapa = await salaModel.mapaNaData(data);
@@ -27,7 +27,7 @@ export const salaNaData = async (req, res) => {
   const { sala_id, data } = req.query;
   const [dia, hora] = data.split("T");
   const FORMATO_VALIDO =
-    /^[0-9]{2}-[0-9]{2}-[0-9]{4}$/.test(dia) && /^[0-9]{2}:[0-9]{2}$/.test(hora) && /[0-9]{1,6}/.test(sala_id);
+    /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(dia) && /^[0-9]{2}:[0-9]{2}$/.test(hora) && /[0-9]{1,6}/.test(sala_id);
   if (!FORMATO_VALIDO) return res.sendStatus(400);
 
   const reserva = await salaModel.salaNaData(sala_id, data);
