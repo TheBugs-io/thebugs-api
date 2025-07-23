@@ -18,16 +18,16 @@ export const listarSalas = async () => {
   return salas;
 };
 
-export const criarSala = async ({ nome, descricao, tipo, andar, numeracao, capacidade }) => {
+export const criarSala = async({ nome, descricao, tipo, localizacao, numeracaoSala, capacidade }) => {
   nome = nome.trim();
-  const PERTENCE_ENUM = TipoSala.includes(tipo) && Andares.includes(andar);
+  const PERTENCE_ENUM = TipoSala.includes(tipo) && Andares.includes(localizacao);
   if (PERTENCE_ENUM) {
     const sala = await prisma.local.create({
       data: {
         nome: nome,
-        numeracaoSala: numeracao,
+        numeracaoSala: numeracaoSala,
         tipo: tipo,
-        localizacao: andar,
+        localizacao: localizacao,
         capacidade: capacidade,
         descricao: descricao,
       },

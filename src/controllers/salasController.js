@@ -5,7 +5,9 @@ export const listarSalas = async (req, res) => {
     const salas = await salaModel.listarSalas();
 
     if (salas.length === 0) {
-      return res.status(200).json({ message: "Nenhuma sala encontrada.", salas: [] });
+      return res
+        .status(200)
+        .json({ message: "Nenhuma sala encontrada.", salas: [] });
     }
 
     return res.status(200).json({ salas });
@@ -15,23 +17,29 @@ export const listarSalas = async (req, res) => {
   }
 };
 
-
 //precisa de 'sala' no body com os dados necessarios
 export const criarSala = async (req, res) => {
   const { sala } = req.body;
+
+  if (!sala || typeof sala !== "object") {
+    return res.status(400).json({ error: "Dados da sala inválidos." });
+  }
+
   try {
-    const criada = await salaModel.criarSala(sala);
-    return res.json({ message: "criado com sucesso", data: { criada } });
-  } catch (err) {
-    return res.sendStatus(400);
+    const novaSala = await salaModel.criarSala(sala);
+    return res.status(201).json({ message: "Sala criada com sucesso.", sala: novaSala });
+  } catch (error) {
+    console.error("Erro ao criar sala:", error);
+    return res.status(500).json({ error: "Erro ao criar sala." });
   }
 };
-
 //  /mapa?data=DD-MM-AAAATHH:MM
 export const mapaNaData = async (req, res) => {
   const { data } = req.query;
   const [dia, hora] = data.split("T");
-  const FORMATO_VALIDO = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(dia) && /^[0-9]{2}:[0-9]{2}$/.test(hora);
+  const FORMATO_VALIDO =
+    /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(dia) &&
+    /^[0-9]{2}:[0-9]{2}$/.test(hora);
   if (!FORMATO_VALIDO) return res.sendStatus(400);
 
   const mapa = await salaModel.mapaNaData(data);
@@ -43,7 +51,9 @@ export const salaNaData = async (req, res) => {
   const { sala_id, data } = req.query;
   const [dia, hora] = data.split("T");
   const FORMATO_VALIDO =
-    /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(dia) && /^[0-9]{2}:[0-9]{2}$/.test(hora) && /[0-9]{1,6}/.test(sala_id);
+    /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(dia) &&
+    /^[0-9]{2}:[0-9]{2}$/.test(hora) &&
+    /[0-9]{1,6}/.test(sala_id);
   if (!FORMATO_VALIDO) return res.sendStatus(400);
 
   const reserva = await salaModel.salaNaData(sala_id, data);
@@ -70,29 +80,46 @@ export const getSala = async (req, res) => {
 export const editarSala = async (req, res) => {
   const { sala_id, novosDados } = req.body;
 
-  const permitido = ["nome", "numeracaoSala", "descricao", "tipo", "localizacao", "status", "capacidade"];
+  const permitido = [
+    "nome",
+    "numeracaoSala",
+    "descricao",
+    "tipo",
+    "localizacao",
+    "status",
+    "capacidade",
+  ];
   function validarDados(dataObj) {
     for (let key in dataObj) {
       if (!permitido.includes(key)) return false;
     }
     return true;
   }
-  const FORMATO_VALIDO = typeof sala_id == "number" && typeof novosDados == "object" && validarDados(novosDados);
+  const FORMATO_VALIDO =
+    typeof sala_id == "number" &&
+    typeof novosDados == "object" &&
+    validarDados(novosDados);
 
   if (FORMATO_VALIDO) {
     const editada = await salaModel.editarSala(sala_id, novosDados);
-    return res.status(200).json({ message: "Editada com sucesso", data: editada });
+    return res
+      .status(200)
+      .json({ message: "Editada com sucesso", data: editada });
   }
   return res
     .status(400)
-    .json({ message: `Envie 'sala_id' inteiro e 'novosDados' no body com algum dos campos permitidos (${permitido})` });
+    .json({
+      message: `Envie 'sala_id' inteiro e 'novosDados' no body com algum dos campos permitidos (${permitido})`,
+    });
 };
 
 export const deletarSala = async (req, res) => {
   const { sala_id } = req.body;
   if (typeof sala_id == "number") {
     const deletada = await salaModel.deletarSala(sala_id);
-    return res.satus(200).json({ message: "Deletada com sucesso", data: deletada });
+    return res
+      .satus(200)
+      .json({ message: "Deletada com sucesso", data: deletada });
   }
   return res.status(400).json({ message: "'sala_id' deve ser inteiro" });
 };
