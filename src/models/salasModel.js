@@ -14,39 +14,8 @@ const TipoSala = [
 const Andares = ["PRIMEIRO_ANDAR", "SEGUNDO_ANDAR", "TERCEIRO_ANDAR"];
 
 export const listarSalas = async () => {
-  const salas = await prisma.local.findMany({
-    where: { tipo: { in: TipoSala } },
-    orderBy: { nome: "asc" },
-    select: {
-      id: true,
-      nome: true,
-      numeracaoSala: true,
-      tipo: true,
-      localizacao: true,
-      capacidade: true,
-      descricao: true,
-      status: true,
-      reservas: {
-        where: { repete: false },
-        select: {
-          id: true,
-          dataInicio: true,
-          dataFim: true,
-          horarioInicio: true,
-          horarioFim: true,
-          responsavel: { select: { nomeCompleto: true, tipo: true } },
-        },
-      },
-    },
-  });
-  return salas.map((sala) => ({
-    ...sala,
-    reservas: sala.reservas.map((reserva) => ({
-      ...reserva,
-      dataInicio: reserva.dataInicio.toISOString(),
-      dataFim: reserva.dataFim.toISOString(),
-    })),
-  }));
+  const salas = await prisma.local.findMany();
+  return salas;
 };
 
 export const criarSala = async ({ nome, descricao, tipo, andar, numeracao, capacidade }) => {
