@@ -11,7 +11,7 @@ datasource db {
 model Local {
   id            Int                  @id @default(autoincrement())
   nome          String
-  numeracaoSala Int
+  numeracaoSala String
   descricao     String?
   tipo          TipoSala?
   localizacao   Andares?
@@ -48,6 +48,7 @@ model Usuario {
   Discente            Discente?
   Docente             Docente?
   Reserva             Reserva[]
+  favoritos           Reserva[]             @relation("Favoritos")
   Secretario          Secretario?
   SolicitacaoRegistro SolicitacaoRegistro[]
   solicitacaoReserva  SolicitacaoReserva[]
@@ -82,33 +83,44 @@ model Secretario {
 }
 
 model Reserva {
-  id                 Int                  @unique @default(autoincrement())
+  id                 Int                  @id @unique @default(autoincrement())
+  nome               String
   localId            Int
   tipo               TipoReserva
   dataInicio         DateTime
   dataFim            DateTime
+  horarioInicio      Int
+  horarioFim         Int
+  repete             Boolean?
+  repeteEm           DiaSemana[]
   dataPedido         DateTime             @default(now())
   statusPedido       StatusPedido         @default(AGUARDANDO)
-  usuarioId          Int
+  responsavelId      Int
   registros          RegistroReserva[]
   local              Local                @relation(fields: [localId], references: [id])
-  usuario            Usuario              @relation(fields: [usuarioId], references: [id])
-  solicitacaoReserva SolicitacaoReserva[]
+  responsavel        Usuario              @relation(fields: [responsavelId], references: [id])
+  SolicitacaoReserva SolicitacaoReserva[]
+  favoritadoPor      Usuario[]            @relation("Favoritos")
 }
 
 model SolicitacaoReserva {
-  id         Int          @id @default(autoincrement())
-  localId    Int
-  tipo       TipoReserva
-  dataInicio DateTime
-  dataFim    DateTime
-  dataPedido DateTime     @default(now())
-  status     StatusPedido @default(AGUARDANDO)
-  usuarioId  Int
-  reservaId  Int?
-  local      Local        @relation(fields: [localId], references: [id])
-  reserva    Reserva?     @relation(fields: [reservaId], references: [id])
-  usuario    Usuario      @relation(fields: [usuarioId], references: [id])
+  id            Int          @id @default(autoincrement())
+  localId       Int
+  tipo          TipoReserva
+  dataInicio    DateTime
+  dataFim       DateTime
+  horarioInicio Int
+  horarioFim    Int
+  repeteEm      DiaSemana[]
+  dataPedido    DateTime     @default(now())
+  status        StatusPedido @default(AGUARDANDO)
+  usuarioId     Int
+  reservaId     Int?
+
+  // Relações -> Local, usuário que pediu e objeto de reserva
+  local   Local    @relation(fields: [localId], references: [id])
+  usuario Usuario  @relation(fields: [usuarioId], references: [id])
+  reserva Reserva? @relation(fields: [reservaId], references: [id])
 
   @@map("solicitacoes_reserva")
 }
@@ -149,8 +161,7 @@ enum Andares {
 }
 
 enum StatusSala {
-  LIVRE
-  RESERVADA
+  FUNCIONAL
   EM_MANUTENCAO
   PROBLEMA_TECNICO
 }
@@ -189,4 +200,13 @@ enum StatusSolicitacaoRegistro {
   APROVADO
   REJEITADO
   EXPIRADO
+}
+
+enum DiaSemana {
+  SEGUNDA_FEIRA
+  TERCA_FEIRA
+  QUARTA_FEIRA
+  QUINTA_FEIRA
+  SEXTA_FEIRA
+  SABADO
 }
