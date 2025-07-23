@@ -39,6 +39,15 @@ export const solicitarReserva = async (req, res) => {
   }
 };
 
+export const listarSolicitacoesReservas = async (req, res) => {
+  try {
+    const solicitacoes = await reservaModel.listarSolicitacoesReservas();
+    res.status(200).json({ solicitacoes });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Erro ao listar solicitações de reservas." });
+  }
+};
+
 export const cancelarReserva = async (req, res) => {
   try {
     const { id } = req.params;

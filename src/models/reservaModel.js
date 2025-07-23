@@ -6,6 +6,10 @@ export const listarReservas = async () => {
   return await prisma.reserva.findMany();
 };
 
+export const listarSolicitacoesReservas = async () => {
+  return await prisma.solicitacaoReserva.findMany();
+};
+
 export const solicitarReserva = async (dadosReserva) => {
   const { localId, tipo, dataInicio, dataFim, usuarioId } = dadosReserva;
 
