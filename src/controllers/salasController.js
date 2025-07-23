@@ -117,9 +117,7 @@ export const deletarSala = async (req, res) => {
   const { sala_id } = req.body;
   if (typeof sala_id == "number") {
     const deletada = await salaModel.deletarSala(sala_id);
-    return res
-      .satus(200)
-      .json({ message: "Deletada com sucesso", data: deletada });
+    return res.status(200).json({ message: "Deletada com sucesso", data: deletada });
   }
   return res.status(400).json({ message: "'sala_id' deve ser inteiro" });
 };
