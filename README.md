@@ -58,10 +58,10 @@ A planilha também indica, de maneira bem limitada, as reservas de salas, conten
 |RF006|Filtros de sala|Como usuário, quero filtrar ou pesquisar salas por data, horário, tipo ou local.| Atualizar o mapa conforme os filtros selecionados | Fornecer os dados para a data específica | Escolha de filtros pertinentes |Geral|Alta|
 |RF007|Retirada de reserva automática|Como usuário administrador, quero que o sistema altere o status das salas de forma automática quando o tempo de reserva expirar.| - | Verificar o prazo da reserva e comparar com a data atual | - |Admin|Média|
 |RF008|Detalhes da sala|Como usuário, quero conferir detalhes das salas, como a grade de horários/ocupações e fotos do local.| Exibir todos os dados de uma sala específica | Reunir e enviar todos os dados da sala selecionada | Hierarquia da informação e cores de destaque |Aluno / Professor|Desejável| EM ANDAMENTO (60%) |
-|RF009|Notificação do sistema|Como usuário, quero receber notificações automáticas por e-mail ou no sistema para lembrar de reservas, alterações e cancelamentos| - | Enviar e-mails para os usuários | Designar o conteúdo das notificações |Aluno / Professor|Desejável| ANDAMENTO |
-|RF010|Solicitação de reserva de sala|Como usuário, quero poder solicitar antecipadamente ou reservar sala diretamente caso esteja disponível no período de tempo desejado e cancelar minhas reservas| Criar um formulário e validar os dados antes de serem enviados | Registrar o pedido no histórico e informar os secretários | - |Aluno / Professor|Alta| TODO |
+|RF009|Notificação do sistema|Como usuário, quero receber notificações automáticas por e-mail ou no sistema para lembrar de reservas, alterações e cancelamentos| - | Enviar e-mails para os usuários | Designar o conteúdo das notificações |Aluno / Professor|Desejável| EM ANDAMENTO (70%) |
+|RF010|Solicitação de reserva de sala|Como usuário, quero poder solicitar antecipadamente ou reservar sala diretamente caso esteja disponível no período de tempo desejado e cancelar minhas reservas| Criar um formulário e validar os dados antes de serem enviados | Registrar o pedido no histórico e informar os secretários | - |Aluno / Professor|Alta| EM ANDAMENTO |
 |RF011|Página do histórico do aluno|Como usuário, quero visualizar uma página de perfil com histórico das minhas reservas.| Listar as reservas do usuário na página de perfil | Fornecer o histórico de reservas do usuário | - |Geral|Média|
-|RF012|Favoritar disciplinas do semestre|Como usuário, quero verificar as salas onde tenho aula, sem precisar pesquisar por elas toda vez.| Listar as disciplinas favoritadas do usuário | Guardar quais disciplinas o usuário favoritou | - |Aluno / Professor|Média| ANDAMENTO|
+|RF012|Favoritar disciplinas do semestre|Como usuário, quero verificar as salas onde tenho aula, sem precisar pesquisar por elas toda vez.| Listar as disciplinas favoritadas do usuário | Guardar quais disciplinas o usuário favoritou | - |Aluno / Professor|Média| CONCLUIDO |
 |RF013|Dashboard de solicitações|Como SECRETARIO, quero visualizar as solicitações de registro com respectivos status e informações dos usuários pedintes como tipo, vínculo e outros. | Tela contendo todos as solicitações, categorizando id, email, nome, tipo, status | Verificar e puxar os dados referentes ao modelo de solicitação de registro | Tela com prevenção de erros e ruptura, com popups para confirmar ações | Admin | Média | CONCLUIDO |
 
 ### Requisitos Não-Funcionais
@@ -105,20 +105,25 @@ src -> diretório com a estrutura de pastas do projeto
     services -> serviços centralizados e mais específicos como envio de emails, notificações e outros criados.
 ```
 
+## Documentação da API
+
+Swagger | OpenAPI (disponibilizada em breve)
+
 ## Como rodar o projeto
 
 _É necessário ter o NodeJS em sua versão mais recente instalada em sua máquina. Você pode ver as instruções de instalação por aqui_
 
-1. Clone este repositório na sua máquina utilizando o comando git git clone https://github.com/TheBugs-io/thebugs-api
+1. Clone este repositório na sua máquina utilizando o comando git `git clone https://github.com/TheBugs-io/thebugs-api`
 2. Abra a pasta utilizando uma IDE de sua preferência, como Visual Studio Code.
 3. Instale as dependências do projeto via terminal usando `npm install`
-4. Você pode ver o projeto utilizando o script `npm run dev`
+4. Para iniciar o projeto em modo de desenvolvimento, utilize o comando `npm run dev`.  
+5. Para gerar a versão de produção, execute `npm run build`.
 
 
 ### Equipe:
-- **Ingryd Duarte** - Backend/Testes | [Github](https://github.com/ingrydf12)
-- **David Boanerges** - Gestão | [Github](https://github.com/DavidBoa)
-- **Arthur Heráclio** - Front-end | [Github](https://github.com/arthurheraclio)
-- **Giovanna Sousa** - Arte / Design
+- **Ingryd Duarte** - Fullstack/Testes | [Github](https://github.com/ingrydf12)
+- **David Boanerges** - Gestão / Design | [Github](https://github.com/DavidBoa)
+- **Arthur Heráclio** - Front-end / Design | [Github](https://github.com/arthurheraclio)
+- **Giovanna Sousa** - Artes
 - **Renan Araujo** - Backend/Testes | [Github](https://github.com/Soiten)
 - **Tiago Viana** - Frontend / Design | [Github](https://github.com/TiagoViana-hue)
