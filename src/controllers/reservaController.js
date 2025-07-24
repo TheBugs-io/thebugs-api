@@ -17,6 +17,9 @@ export const solicitarReserva = async (req, res) => {
       tipo,
       dataInicio,
       dataFim,
+      horarioInicio,
+      horarioFim,
+      repeteEm,
       usuarioId,
     } = req.body;
 
@@ -25,6 +28,9 @@ export const solicitarReserva = async (req, res) => {
       tipo,
       dataInicio,
       dataFim,
+      horarioInicio,
+      horarioFim,
+      repeteEm,
       usuarioId,
     });
 
