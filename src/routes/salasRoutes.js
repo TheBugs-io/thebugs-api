@@ -7,7 +7,7 @@ const router = express.Router();
 router.get("/", salasController.listarSalas);
 router.get("/mapa", salasController.mapaNaData);
 router.get("/na-data", salasController.salaNaData);
-router.get("/sala", salasController.getSala);
+router.get("/:id", salasController.getSala);
 router.get("/reservas-da-sala", salasController.reservasDaSala);
 
 router.use(authMiddleware)
