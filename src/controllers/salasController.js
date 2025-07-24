@@ -69,10 +69,10 @@ export const reservasDaSala = async (req, res) => {
 };
 
 export const getSala = async (req, res) => {
-  const { sala_id } = req.query;
-  if (!/[0-9]{1,6}/.test(sala_id)) return res.sendStatus(400);
+  const { id } = req.params;
+  if (!/[0-9]{1,6}/.test(id)) return res.sendStatus(400);
 
-  const sala = await salaModel.getSala(Number(sala_id));
+  const sala = await salaModel.getSala(Number(id));
   return res.send(sala);
 };
 
