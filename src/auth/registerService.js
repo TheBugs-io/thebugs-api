@@ -5,8 +5,9 @@ import { v4 as uuidv4 } from "uuid";
 import validarEmailInstitucional from "../utils/validationEmail.js";
 import {
   enviarEmailConfirmacao,
-  notificarSecretaria, notificarStatusRegistro,
-  notificarUsuario
+  notificarSecretaria,
+  notificarStatusRegistro,
+  notificarUsuario,
 } from "../service/mailRegister.js";
 import gerarSenhaInicial from "../utils/generatePassword.js";
 
@@ -44,7 +45,7 @@ export const solicitarRegistro = async (req, res) => {
 
     const tokenConfirmacao = uuidv4();
 
-    await registroModel.criarSolicitacaoRegistro({
+    const novaSolicitacao = await registroModel.criarSolicitacaoRegistro({
       nomeCompleto,
       nomeSocial,
       email,
@@ -53,7 +54,7 @@ export const solicitarRegistro = async (req, res) => {
       ...dadosEspecificos,
     });
 
-    await enviarEmailConfirmacao(email, tokenConfirmacao);
+    await enviarEmailConfirmacao(email, tokenConfirmacao, novaSolicitacao);
 
     return res.status(201).json({
       message:
@@ -174,7 +175,9 @@ export const historicoSolicitacoes = async (req, res) => {
     res.status(200).json(historico);
   } catch (error) {
     console.error("Erro ao buscar histórico de solicitações:", error);
-    res.status(500).json({ error: "Erro ao buscar histórico de solicitações." });
+    res
+      .status(500)
+      .json({ error: "Erro ao buscar histórico de solicitações." });
   }
 };
 
@@ -191,11 +194,14 @@ export const atualizarStatus = async (req, res) => {
       secretarioId
     );
 
-    if (status.toLowerCase() === 'rejeitado') {
+    if (status.toLowerCase() === "rejeitado") {
       const dadosSolicitacao = await registroModel.buscarPorId(Number(id));
-      await notificarStatusRegistro(dadosSolicitacao.email, dadosSolicitacao.nome);
+      await notificarStatusRegistro(
+        dadosSolicitacao.email,
+        dadosSolicitacao.nome
+      );
       await deletarRegistro(Number(id));
-    } else if (status.toLowerCase() === 'aprovado') {
+    } else if (status.toLowerCase() === "aprovado") {
       const response = await confirmarCriacaoUsuarioInterno(Number(id));
       if (response.erro) {
         return res.status(response.status).json({ error: response.erro });
@@ -232,11 +238,17 @@ export const deletarSolicitacao = async (req, res) => {
 //MARK: - Lógica de criação de usuário
 export const confirmarCriacaoUsuarioInterno = async (id) => {
   try {
-    const solicitacao = await prisma.solicitacaoRegistro.findUnique({ where: { id } });
-    if (!solicitacao) return { erro: "Solicitação não encontrada.", status: 404 };
+    const solicitacao = await prisma.solicitacaoRegistro.findUnique({
+      where: { id },
+    });
+    if (!solicitacao)
+      return { erro: "Solicitação não encontrada.", status: 404 };
 
-    const jaExisteUsuario = await prisma.usuario.findUnique({ where: { email: solicitacao.email } });
-    if (jaExisteUsuario) return { erro: "Usuário já existe com esse e-mail.", status: 409 };
+    const jaExisteUsuario = await prisma.usuario.findUnique({
+      where: { email: solicitacao.email },
+    });
+    if (jaExisteUsuario)
+      return { erro: "Usuário já existe com esse e-mail.", status: 409 };
 
     const senhaInicial = gerarSenhaInicial(10);
     const senhaHash = await bcrypt.hash(senhaInicial, 10);
