@@ -3,8 +3,9 @@ import * as favController from "../controllers/favController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
-router.get("/favoritos", authMiddleware, favController.listarFavoritos);
-router.post("/favoritos", authMiddleware, favController.createFavorito);
-router.delete("/favoritos", authMiddleware, favController.deleteFavorito);
+router.use(authMiddleware);
+router.get("/favoritos", favController.listarFavoritos);
+router.post("/favoritos", favController.createFavorito);
+router.delete("/favoritos", favController.deleteFavorito);
 
 export default router;

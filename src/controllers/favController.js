@@ -6,18 +6,19 @@ export const createFavorito = async (req, res) => {
 
   try {
     const LOCAL_EXISTE = await prisma.local.findUnique({ where: { id: Number(local_id) } });
-    if (LOCAL_EXISTE) {
-      const usuario = await prisma.usuario.update({
-        where: { id: Number(user.id) },
-        data: { favoritos: { connect: { id: Number(local_id) } } },
-        include: { favoritos: { select: { nome: true } } },
-      });
-
-      return res.json({ message: "Favorito adicionado", data: usuario.favoritos });
+    if (!LOCAL_EXISTE) {
+      return res.status(400).json({ message: "Sala não existe" });
     }
-    return res.status(400).json({ message: "Reserva não existe" });
+
+    const usuario = await prisma.usuario.update({
+      where: { id: Number(user.id) },
+      data: { favoritos: { connect: { id: Number(local_id) } } },
+      include: { favoritos: { select: { nome: true } } },
+    });
+
+    return res.json({ message: "Favorito adicionado", data: usuario.favoritos });
   } catch (error) {
-    return res.status(500).json({ message: "Id incompativel ou inexistente" });
+    return res.status(500).json({ message: "Erro ao adicionar favorito", error: error.message });
   }
 };
 
