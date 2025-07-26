@@ -21,6 +21,12 @@ export const listarSalas = async () => {
 export const criarSala = async({ nome, descricao, tipo, localizacao, numeracaoSala, capacidade }) => {
   nome = nome.trim();
   const PERTENCE_ENUM = TipoSala.includes(tipo) && Andares.includes(localizacao);
+  if (numeracaoSala) {
+    const salaExistente = await prisma.local.findFirst({ where: { numeracaoSala } });
+    if (salaExistente) {
+      throw new Error("A numeração de sala passada já existe.");
+    }
+  }
   if (PERTENCE_ENUM) {
     const sala = await prisma.local.create({
       data: {
