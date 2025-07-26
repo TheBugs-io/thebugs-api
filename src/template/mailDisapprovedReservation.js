@@ -1,13 +1,13 @@
 /*
-    Description: Emails de desaprovação na plataforma, até então.
-    STATUS: Todo
+    Description: Email de desaprovação de reserva.
+    STATUS: Todo (falta implementar)
 */
-export const disapprovedRegisterRequest = async (solicitacao) => `<!DOCTYPE html>
+export const disapprovedReservationRequest = async (reserva) => `<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Confirme seu email no Cadê a Sala</title>
+    <title>Reserva não aprovada - Cadê a Sala</title>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@300;400;700&display=swap");
 
@@ -57,15 +57,24 @@ export const disapprovedRegisterRequest = async (solicitacao) => `<!DOCTYPE html
   <body>
     <div class="email-container" role="region" aria-labelledby="titulo-email">
       <header role="banner">
-        <h2 id="titulo-email">Resultado da sua solicitação</h2>
+        <h2 id="titulo-email">Status da sua reserva</h2>
       </header>
 
       <main role="main">
-        <p>Olá, ${solicitacao.nomeCompleto}</p>
+        <p>Olá, ${reserva.nomeSolicitante}</p>
         <p>
-          Infelizmente, sua solicitação foi <b>rejeitada</b>. Talvez tenha alguma inconsistência com os dados informados. Você pode tentar novamente ou caso queira mais detalhes, entre em contato com a secretaria.
+          Sua solicitação de reserva para o espaço <b>${
+            reserva.espaco
+          }</b>, no dia <b>${reserva.data}</b> às <b>${
+  reserva.horario
+}</b>, foi <b>rejeitada</b>.
         </p>
-
+        <p>
+          Isso pode ter ocorrido por conflito de horários, dados incorretos ou outras restrições. Você pode revisar os detalhes e realizar uma nova tentativa.
+        </p>
+        <p>
+          Caso precise de mais informações, entre em contato com a administração do espaço ou a secretaria responsável.
+        </p>
       </main>
 
       <footer role="contentinfo">
@@ -76,6 +85,4 @@ export const disapprovedRegisterRequest = async (solicitacao) => `<!DOCTYPE html
       </footer>
     </div>
   </body>
-</html>`
-
-export const disapprovedReservationRequest = ``
+</html>`;
