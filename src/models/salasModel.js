@@ -18,30 +18,47 @@ export const listarSalas = async () => {
   return salas;
 };
 
-export const criarSala = async({ nome, descricao, tipo, localizacao, numeracaoSala, capacidade }) => {
+export const criarSala = async ({
+  nome,
+  descricao,
+  tipo,
+  localizacao,
+  numeracaoSala,
+  capacidade,
+}) => {
   nome = nome.trim();
+
   const PERTENCE_ENUM = TipoSala.includes(tipo) && Andares.includes(localizacao);
-  if (numeracaoSala) {
-    const salaExistente = await prisma.local.findFirst({ where: { numeracaoSala } });
-    if (salaExistente) {
-      throw new Error("A numeração de sala passada já existe.");
-    }
-  }
-  if (PERTENCE_ENUM) {
-    const sala = await prisma.local.create({
-      data: {
-        nome: nome,
-        numeracaoSala: numeracaoSala,
-        tipo: tipo,
-        localizacao: localizacao,
-        capacidade: capacidade,
-        descricao: descricao,
-      },
-    });
-    return sala;
+  if (!PERTENCE_ENUM) {
+    throw new Error("Tipo ou localização inválidos. Cheque os enums da requisição.");
   }
 
-  throw new Error("Cheque os enums da requisição");
+  const salaExistente = await prisma.local.findFirst({
+    where: {
+      numeracaoSala,
+      localizacao,
+    },
+  });
+
+  if (salaExistente) {
+    throw new Error(
+      `Já existe uma sala com a numeração "${numeracaoSala}" no local "${localizacao}".`
+    );
+  }
+
+  // Criação da sala
+  const sala = await prisma.local.create({
+    data: {
+      nome,
+      descricao,
+      tipo,
+      localizacao,
+      numeracaoSala,
+      capacidade,
+    },
+  });
+
+  return sala;
 };
 
 export const deletarSala = async (sala_id) => {
