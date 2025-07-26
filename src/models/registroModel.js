@@ -116,6 +116,14 @@ export const listarSolicitacoesPendentes = async () => {
   });
 };
 
+export const historicoSolicitacoes = async (usuarioId) => {
+  //TODO: trocar pro modelo de histórico ae
+  return await prisma.solicitacaoRegistro.findMany({
+    where: { usuarioId },
+    orderBy: { criadoEm: "asc" },
+  });
+};
+
 export const deletarSolicitacao = async (id) => {
   return await prisma.solicitacaoRegistro.delete({
     where: { id },

@@ -167,6 +167,17 @@ export const listarPendentes = async (req, res) => {
   }
 };
 
+export const historicoSolicitacoes = async (req, res) => {
+  try {
+    const usuarioId = req.user?.id;
+    const historico = await registroModel.historicoSolicitacoes(usuarioId);
+    res.status(200).json(historico);
+  } catch (error) {
+    console.error("Erro ao buscar histórico de solicitações:", error);
+    res.status(500).json({ error: "Erro ao buscar histórico de solicitações." });
+  }
+};
+
 export const atualizarStatus = async (req, res) => {
   try {
     const { id } = req.params;
