@@ -1,5 +1,6 @@
 import * as reservaModel from '../models/reservaModel.js'
 import * as mailReserva from '../service/mailReserva.js';
+import registrarHistorico from "./historicoController.js";
 
 export const listarReservas = async (req, res) => {
   try {
@@ -35,6 +36,8 @@ export const solicitarReserva = async (req, res) => {
       usuarioId,
     });
 
+    await registrarHistorico("Reserva solicitada", solicitacao, "CREATE", "SOLICITACAO");
+
     res.status(200).json({
       message: "Reserva solicitada. Aguarde a aprovação da secretaria.",
       solicitacao,
@@ -64,6 +67,8 @@ export const cancelarReserva = async (req, res) => {
     if (!reserva) {
       return res.status(404).json({ error: "Reserva não encontrada." });
     }
+
+    await registrarHistorico("Reserva cancelada", reserva, "DELETE", "RESERVA");
 
     res.status(200).json({ message: "Reserva cancelada com sucesso." });
   } catch (error) {
@@ -120,6 +125,8 @@ export const atualizarStatusReserva = async (req, res) => {
         return res.status(400).json({ error: "Status inválido." });
     }
 
+    await registrarHistorico("Reserva atualizada", reservaAtualizada, "UPDATE", "RESERVA");
+
     res.status(200).json({ message: "Status da reserva atualizado com sucesso.", reserva: reservaAtualizada });
   } catch (error) {
     res.status(500).json({ error: error.message || "Erro ao atualizar o status da reserva." });
@@ -144,6 +151,8 @@ export const atualizarStatusSolicitacao = async (req, res) => {
     if (!solicitacaoAtualizada) {
       return res.status(404).json({ error: "Solicitação não encontrada." });
     }
+
+    await registrarHistorico("Solicitação atualizada", solicitacaoAtualizada, "UPDATE", "SOLICITACAO");
     res.status(200).json({ message: "Status da solicitação atualizado com sucesso.", solicitacao: solicitacaoAtualizada });
     
   } catch (error) {
@@ -164,6 +173,7 @@ export const deletarSolicitacao = async (req, res) => {
     }
 
     await reservaModel.deletarSolicitacao(id);
+    await registrarHistorico("Solicitação deletada", solicitacao, "DELETE", "SOLICITACAO");
     res.status(200).json({ message: "Solicitação deletada com sucesso." });
   } catch (error) {
     console.error("Erro ao deletar solicitação:", error);
