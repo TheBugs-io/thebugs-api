@@ -1,5 +1,6 @@
 import prisma from "../database/prisma.js";
 import dataBrasilia from "../utils/datas.js";
+import registrarHistorico from "../controllers/historicoController.js";
 
 //Todas as reservas aqui -> só ADMIN
 export const listarReservas = async () => {
@@ -113,6 +114,22 @@ export const buscarSolicitacaoReserva = async (id) => {
   }
 
   return solicitacao;
+};
+
+export const rejeitarSolicitacao = async (id) => {
+  const idNum = Number(id);
+
+  const solicitacao = await prisma.solicitacaoReserva.findUnique({
+    where: { id: idNum },
+  });
+
+  if (!solicitacao) {
+    throw new Error("Solicitação de reserva não encontrada.");
+  }
+
+  await prisma.solicitacaoReserva.delete({ where: { id: idNum } });
+
+  return { mensagem: "Solicitação de reserva rejeitada e removida." };
 };
 
 //Vinculados ao modelo de Reserva
