@@ -1,13 +1,13 @@
 /*
-    Description: Emails de desaprovação na plataforma, até então.
-    STATUS: Todo
+    Description: Email de cancelamento de reserva feito por um administrador.
+    STATUS: Done
 */
-export const disapprovedRegisterRequest = async (solicitacao) => `<!DOCTYPE html>
+export const cancelledReservationByAdmin = async (reserva) => `<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Confirme seu email no Cadê a Sala</title>
+    <title>Reserva cancelada – Cadê a Sala</title>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@300;400;700&display=swap");
 
@@ -22,7 +22,7 @@ export const disapprovedRegisterRequest = async (solicitacao) => `<!DOCTYPE html
       }
 
       .email-container {
-        background-color: white;
+        background-color: #ffffff;
         margin: 20px;
         border-radius: 8px;
         overflow: hidden;
@@ -33,7 +33,7 @@ export const disapprovedRegisterRequest = async (solicitacao) => `<!DOCTYPE html
         background: #a80000;
         padding: 2rem;
         text-align: center;
-        color: white;
+        color: #ffffff;
       }
 
       h2 {
@@ -43,6 +43,14 @@ export const disapprovedRegisterRequest = async (solicitacao) => `<!DOCTYPE html
 
       main {
         padding: 2rem;
+      }
+
+      .details {
+        background: #f0f2f5;
+        border-radius: 6px;
+        padding: 1rem 1.5rem;
+        margin: 1rem 0 1.5rem;
+        font-weight: 700;
       }
 
       footer {
@@ -57,25 +65,33 @@ export const disapprovedRegisterRequest = async (solicitacao) => `<!DOCTYPE html
   <body>
     <div class="email-container" role="region" aria-labelledby="titulo-email">
       <header role="banner">
-        <h2 id="titulo-email">Resultado da sua solicitação</h2>
+        <h2 id="titulo-email">Reserva cancelada</h2>
       </header>
 
       <main role="main">
-        <p>Olá, ${solicitacao.nomeCompleto}</p>
+        <p>Olá, ${reserva.nomeSolicitante},</p>
         <p>
-          Infelizmente, sua solicitação foi <b>rejeitada</b>. Talvez tenha alguma inconsistência com os dados informados. Você pode tentar novamente ou caso queira mais detalhes, entre em contato com a secretaria.
+          Informamos que sua reserva da sala <b>${reserva.sala}</b>, marcada para o dia <b>${reserva.data}</b> às <b>${reserva.horario}</b>, foi <b>cancelada</b> por um administrador da plataforma.
         </p>
 
+        <div class="details">
+          Motivo do cancelamento:<br />
+          ${reserva.motivoCancelamento ?? "Não especificado."}
+        </div>
+
+        <p>
+          Pedimos desculpas por qualquer inconveniente. Você pode fazer uma nova solicitação de reserva acessando a plataforma.
+        </p>
+
+        <p>
+          Se tiver dúvidas ou precisar de assistência, entre em contato com a secretaria.
+        </p>
       </main>
 
       <footer role="contentinfo">
-        <p>
-          © ${new Date().getFullYear()} Cadê a Sala? — Universidade Federal do Ceará.
-        </p>
+        <p>© ${new Date().getFullYear()} Cadê a Sala? — Universidade Federal do Ceará.</p>
         <p>Esta é uma mensagem automática, por favor, não responda.</p>
       </footer>
     </div>
   </body>
-</html>`
-
-export const disapprovedReservationRequest = ``
+</html>`;
