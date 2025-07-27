@@ -1,16 +1,22 @@
-import * as reservaModel from '../models/reservaModel.js'
-import * as mailReserva from '../service/mailReserva.js';
+import * as reservaModel from "../models/reservaModel.js";
+import * as mailReserva from "../service/mailReserva.js";
 import registrarHistorico from "./historicoController.js";
 
 export const listarReservas = async (req, res) => {
   try {
     const reservas = await reservaModel.listarReservas();
-    res.status(200).json({ message: "Sem reservas por enquanto.", reservas })
+
+    if (!reservas || reservas.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "Sem reservas por enquanto.", reservas: [] });
+    }
+
+    res.status(200).json({ reservas });
   } catch (error) {
     res.status(500).json({ erro: error.message || "Erro ao listar!" });
   }
-}
-//TODO: nEED TO FIX
+};
 
 export const solicitarReserva = async (req, res) => {
   try {
@@ -36,7 +42,12 @@ export const solicitarReserva = async (req, res) => {
       usuarioId,
     });
 
-    await registrarHistorico("Reserva solicitada", solicitacao, "CREATE", "SOLICITACAO");
+    await registrarHistorico(
+      "Reserva solicitada",
+      solicitacao,
+      "CREATE",
+      "SOLICITACAO"
+    );
 
     res.status(200).json({
       message: "Reserva solicitada. Aguarde a aprovação da secretaria.",
@@ -54,13 +65,21 @@ export const listarSolicitacoesReservas = async (req, res) => {
     const solicitacoes = await reservaModel.listarSolicitacoesReservas();
     res.status(200).json({ solicitacoes });
   } catch (error) {
-    res.status(500).json({ error: error.message || "Erro ao listar solicitações de reservas." });
+    res
+      .status(500)
+      .json({
+        error: error.message || "Erro ao listar solicitações de reservas.",
+      });
   }
 };
 
 export const cancelarReserva = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = Number(req.params.id);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ error: "ID inválido." });
+    }
 
     const reserva = await reservaModel.deletarReserva(id);
 
@@ -72,7 +91,9 @@ export const cancelarReserva = async (req, res) => {
 
     res.status(200).json({ message: "Reserva cancelada com sucesso." });
   } catch (error) {
-    res.status(500).json({ error: error.message || "Erro ao cancelar a reserva." });
+    res
+      .status(500)
+      .json({ error: error.message || "Erro ao cancelar a reserva." });
   }
 };
 
@@ -83,12 +104,16 @@ export const listarReservasUsuario = async (req, res) => {
     const reservas = await reservaModel.listarReservasUsuario(usuarioId);
 
     if (reservas.length === 0) {
-      return res.status(404).json({ message: "Nenhuma reserva encontrada para este usuário." });
+      return res
+        .status(404)
+        .json({ message: "Nenhuma reserva encontrada para este usuário." });
     }
 
     res.status(200).json({ reservas });
   } catch (error) {
-    res.status(500).json({ error: error.message || "Erro ao listar reservas do usuário." });
+    res
+      .status(500)
+      .json({ error: error.message || "Erro ao listar reservas do usuário." });
   }
 };
 
@@ -101,62 +126,97 @@ export const atualizarStatusReserva = async (req, res) => {
       return res.status(400).json({ error: "Status é obrigatório." });
     }
 
-    const reservaAtualizada = await reservaModel.atualizarStatusReserva(id, status);
+    const reservaAtualizada = await reservaModel.atualizarStatusReserva(
+      id,
+      status
+    );
 
     if (!reservaAtualizada) {
       return res.status(404).json({ error: "Reserva não encontrada." });
     }
 
     switch (status.toLowerCase()) {
-      case 'cancelado':
-        await mailReserva.notificarAtualizacaoReservaAdm(reservaAtualizada.email, reservaAtualizada, req.user.nome);
-        return res.status(200).json({ message: "Reserva cancelada com sucesso." });
-      case 'pendente':
+      case "cancelado":
+        await mailReserva.notificarAtualizacaoReservaAdm(
+          reservaAtualizada.email,
+          reservaAtualizada,
+          req.user.nome
+        );
+        return res
+          .status(200)
+          .json({ message: "Reserva cancelada com sucesso." });
+      case "pendente":
         await mailReserva.notificarSecretariaPedido(reservaAtualizada);
         break;
-      case 'rejeitado':
+      case "rejeitado":
         await mailReserva.notificarUsuarioReserva(reservaAtualizada);
         await reservaModel.deletarReserva(id);
-        return res.status(200).json({ message: "Reserva rejeitada e deletada." });
-      case 'aprovado':
+        return res
+          .status(200)
+          .json({ message: "Reserva rejeitada e deletada." });
+      case "aprovado":
         await mailReserva.notificarUsuarioReserva(reservaAtualizada);
         break;
       default:
         return res.status(400).json({ error: "Status inválido." });
     }
 
-    await registrarHistorico("Reserva atualizada", reservaAtualizada, "UPDATE", "RESERVA");
+    await registrarHistorico(
+      "Reserva atualizada",
+      reservaAtualizada,
+      "UPDATE",
+      "RESERVA"
+    );
 
-    res.status(200).json({ message: "Status da reserva atualizado com sucesso.", reserva: reservaAtualizada });
+    res
+      .status(200)
+      .json({
+        message: "Status da reserva atualizado com sucesso.",
+        reserva: reservaAtualizada,
+      });
   } catch (error) {
-    res.status(500).json({ error: error.message || "Erro ao atualizar o status da reserva." });
+    res
+      .status(500)
+      .json({
+        error: error.message || "Erro ao atualizar o status da reserva.",
+      });
   }
 };
 
 export const atualizarStatusSolicitacao = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!status) {
+    return res.status(400).json({ error: "Status é obrigatório." });
+  }
+
   try {
-    const { id } = req.params;
-    const { status } = req.body;
+    let resultado;
+    let message;
 
-    if (!status) {
-      return res.status(400).json({ error: "Status é obrigatório." });
+    if (status === "APROVADO") {
+      resultado = await reservaModel.aprovarSolicitacao(id);
+      message = "Solicitação aprovada e reserva criada com sucesso.";
+      
+      await registrarHistorico("Solicitação aprovada", resultado, "UPDATE", "SOLICITACAO");
+      return res.status(200).json({ message, reserva: resultado });
     }
 
-    if (status === 'APROVADO') {
-      const reservaCriada = await reservaModel.aprovarSolicitacao(id);
-      return res.status(200).json({ message: "Solicitação aprovada e reserva criada com sucesso.", reserva: reservaCriada });
-    }
+    resultado = await reservaModel.atualizarStatusReserva(id, { status });
 
-    const solicitacaoAtualizada = await reservaModel.atualizarSolicitacaoReserva(id, { status });
-    if (!solicitacaoAtualizada) {
+    if (!resultado) {
       return res.status(404).json({ error: "Solicitação não encontrada." });
     }
 
-    await registrarHistorico("Solicitação atualizada", solicitacaoAtualizada, "UPDATE", "SOLICITACAO");
-    res.status(200).json({ message: "Status da solicitação atualizado com sucesso.", solicitacao: solicitacaoAtualizada });
-    
+    message = "Status da solicitação atualizado com sucesso.";
+    await registrarHistorico("Solicitação atualizada", resultado, "UPDATE", "SOLICITACAO");
+    return res.status(200).json({ message, solicitacao: resultado });
+
   } catch (error) {
-    res.status(500).json({ error: error.message || "Erro ao atualizar o status da solicitação." });
+    return res.status(500).json({
+      error: error.message || "Erro ao atualizar o status da solicitação.",
+    });
   }
 };
 
@@ -173,10 +233,15 @@ export const deletarSolicitacao = async (req, res) => {
     }
 
     await reservaModel.deletarSolicitacao(id);
-    await registrarHistorico("Solicitação deletada", solicitacao, "DELETE", "SOLICITACAO");
+    await registrarHistorico(
+      "Solicitação deletada",
+      solicitacao,
+      "DELETE",
+      "SOLICITACAO"
+    );
     res.status(200).json({ message: "Solicitação deletada com sucesso." });
   } catch (error) {
     console.error("Erro ao deletar solicitação:", error);
     res.status(500).json({ error: "Erro ao deletar solicitação." });
   }
-}
+};
