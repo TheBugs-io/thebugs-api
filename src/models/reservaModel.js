@@ -10,10 +10,29 @@ export const listarSolicitacoesReservas = async () => {
   return await prisma.solicitacaoReserva.findMany();
 };
 
-export const solicitarReserva = async (dadosReserva) => {
-  const { localId, tipo, dataInicio, dataFim, usuarioId } = dadosReserva;
 
-  const camposObrigatorios = { localId, tipo, dataInicio, dataFim, usuarioId };
+export const solicitarReserva = async (dadosReserva) => {
+  const {
+    localId,
+    tipo,
+    dataInicio,
+    dataFim,
+    horarioInicio,
+    horarioFim,
+    repeteEm,
+    usuarioId,
+  } = dadosReserva;
+
+  const camposObrigatorios = {
+    localId,
+    tipo,
+    dataInicio,
+    dataFim,
+    horarioInicio,
+    horarioFim,
+    repeteEm,
+    usuarioId,
+  };
 
   const camposFaltando = Object.entries(camposObrigatorios)
     .filter(([_, valor]) => valor === undefined || valor === null)
@@ -23,7 +42,6 @@ export const solicitarReserva = async (dadosReserva) => {
     throw new Error(`Campos obrigatórios faltando: ${camposFaltando.join(", ")}`);
   }
 
-  //Os dois tem que existir pra que a solicitação seja feita, aqui com a Promise eu testo os dois casos, e retorno os erros pelos ifs em baixo
   const [local, usuario] = await Promise.all([
     prisma.local.findUnique({ where: { id: localId } }),
     prisma.usuario.findUnique({ where: { id: usuarioId } }),
@@ -38,6 +56,9 @@ export const solicitarReserva = async (dadosReserva) => {
       tipo,
       dataInicio: dataBrasilia({ string: dataInicio }),
       dataFim: dataBrasilia({ string: dataFim }),
+      horarioInicio,
+      horarioFim,
+      repeteEm,
       usuarioId,
     },
   });
@@ -85,3 +106,30 @@ export const atualizarStatusReserva = async (id, status) => {
   });
 };
 
+//TODO: nEED TO FIX
+export const aprovarSolicitacao = async (id) => {
+  const idNum = Number(id);
+
+  const solicitacao = await prisma.solicitacaoReserva.findUnique({ where: { id: idNum } });
+  if (!solicitacao) {
+    throw new Error("Solicitação de reserva não encontrada.");
+  }
+
+  const novaReserva = await prisma.reserva.create({
+    data: {
+      nome: solicitacao.nome,
+      tipo: solicitacao.tipo,
+      dataInicio: solicitacao.dataInicio,
+      dataFim: solicitacao.dataFim,
+      horarioInicio: solicitacao.horarioInicio,
+      horarioFim: solicitacao.horarioFim,
+      localId: solicitacao.localId,
+      responsavelId: solicitacao.usuarioId,
+      status: 'CONFIRMADA',
+    }
+  });
+
+  await prisma.solicitacaoReserva.delete({ where: { id: idNum } });
+
+  return novaReserva;
+};

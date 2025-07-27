@@ -17,7 +17,6 @@ export const listarSalas = async (req, res) => {
   }
 };
 
-//precisa de 'sala' no body com os dados necessarios
 export const criarSala = async (req, res) => {
   const { sala } = req.body;
 
@@ -27,12 +26,21 @@ export const criarSala = async (req, res) => {
 
   try {
     const novaSala = await salaModel.criarSala(sala);
-    return res.status(201).json({ message: "Sala criada com sucesso.", sala: novaSala });
+
+    return res.status(201).json({
+      message: "Sala criada com sucesso.",
+      sala: novaSala,
+    });
   } catch (error) {
     console.error("Erro ao criar sala:", error);
-    return res.status(500).json({ error: "Erro ao criar sala." });
+
+    return res.status(500).json({
+      error: "Erro ao criar sala.",
+      details: error.message,
+    });
   }
 };
+
 //  /mapa?data=DD-MM-AAAATHH:MM
 export const mapaNaData = async (req, res) => {
   const { data } = req.query;
@@ -61,11 +69,19 @@ export const salaNaData = async (req, res) => {
 };
 
 export const reservasDaSala = async (req, res) => {
-  const { sala_id } = req.query;
-  if (!/[0-9]{1,6}/.test(sala_id)) return res.sendStatus(400);
+  const id = parseInt(req.query.sala_id, 10);
 
-  const reservas = await salaModel.reservasDaSala(Number(sala_id));
-  return res.send(reservas);
+  if (!Number.isInteger(id) || id < 1 || id > 999999) {
+    return res.status(400).json({ error: "ID da sala inválido" });
+  }
+
+  try {
+    const reservas = await salaModel.reservasDaSala(id);
+    return res.status(200).json(reservas);
+  } catch (error) {
+    console.error("Erro ao buscar reservas da sala:", error);
+    return res.status(500).json({ error: "Erro interno ao buscar reservas." });
+  }
 };
 
 export const getSala = async (req, res) => {
@@ -106,18 +122,18 @@ export const editarSala = async (req, res) => {
       .status(200)
       .json({ message: "Editada com sucesso", data: editada });
   }
-  return res
-    .status(400)
-    .json({
-      message: `Envie 'sala_id' inteiro e 'novosDados' no body com algum dos campos permitidos (${permitido})`,
-    });
+  return res.status(400).json({
+    message: `Envie 'sala_id' inteiro e 'novosDados' no body com algum dos campos permitidos (${permitido})`,
+  });
 };
 
 export const deletarSala = async (req, res) => {
   const { sala_id } = req.body;
   if (typeof sala_id == "number") {
     const deletada = await salaModel.deletarSala(sala_id);
-    return res.status(200).json({ message: "Deletada com sucesso", data: deletada });
+    return res
+      .status(200)
+      .json({ message: "Deletada com sucesso", data: deletada });
   }
   return res.status(400).json({ message: "'sala_id' deve ser inteiro" });
 };

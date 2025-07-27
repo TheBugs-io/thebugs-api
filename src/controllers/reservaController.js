@@ -9,6 +9,7 @@ export const listarReservas = async (req, res) => {
     res.status(500).json({ erro: error.message || "Erro ao listar!" });
   }
 }
+//TODO: nEED TO FIX
 
 export const solicitarReserva = async (req, res) => {
   try {
@@ -17,6 +18,9 @@ export const solicitarReserva = async (req, res) => {
       tipo,
       dataInicio,
       dataFim,
+      horarioInicio,
+      horarioFim,
+      repeteEm,
       usuarioId,
     } = req.body;
 
@@ -25,6 +29,9 @@ export const solicitarReserva = async (req, res) => {
       tipo,
       dataInicio,
       dataFim,
+      horarioInicio,
+      horarioFim,
+      repeteEm,
       usuarioId,
     });
 
@@ -82,7 +89,7 @@ export const listarReservasUsuario = async (req, res) => {
 
 export const atualizarStatusReserva = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.body;
     const { status } = req.body;
 
     if (!status) {
@@ -116,6 +123,31 @@ export const atualizarStatusReserva = async (req, res) => {
     res.status(200).json({ message: "Status da reserva atualizado com sucesso.", reserva: reservaAtualizada });
   } catch (error) {
     res.status(500).json({ error: error.message || "Erro ao atualizar o status da reserva." });
+  }
+};
+
+export const atualizarStatusSolicitacao = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: "Status é obrigatório." });
+    }
+
+    if (status === 'APROVADO') {
+      const reservaCriada = await reservaModel.aprovarSolicitacao(id);
+      return res.status(200).json({ message: "Solicitação aprovada e reserva criada com sucesso.", reserva: reservaCriada });
+    }
+
+    const solicitacaoAtualizada = await reservaModel.atualizarSolicitacaoReserva(id, { status });
+    if (!solicitacaoAtualizada) {
+      return res.status(404).json({ error: "Solicitação não encontrada." });
+    }
+    res.status(200).json({ message: "Status da solicitação atualizado com sucesso.", solicitacao: solicitacaoAtualizada });
+    
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Erro ao atualizar o status da solicitação." });
   }
 };
 

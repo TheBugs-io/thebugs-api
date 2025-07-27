@@ -14,6 +14,7 @@ router.post('/register/confirm-user', autorizacaoSecretario, registerService.con
 router.get('/register/token/:token', registerService.buscarPorToken);
 router.get('/register/id/:id', registerService.buscarPorId);
 router.get('/register/email/:email', registerService.buscarPorEmail);
+router.get('/register/historico-solicitacoes', registerService.historicoSolicitacoes);
 router.get('/register/pendentes', registerService.listarPendentes);
 router.patch('/register/:id', registerService.atualizarStatus);
 router.delete('/register/:id', registerService.deletarSolicitacao);

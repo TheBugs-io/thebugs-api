@@ -1,14 +1,14 @@
-export const mailConfirmToken = (link) => `<!DOCTYPE html>
+export const mailConfirmToken = (link, solicitacao) => `<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Confirme seu email no Cadê a Sala</title>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@300;400;700&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Albert+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
 
       body {
-        font-family: "Roboto", sans-serif;
+        font-family: "Albert Sans", sans-serif;
         line-height: 1.6;
         color: #333;
         max-width: 600px;
@@ -82,7 +82,7 @@ export const mailConfirmToken = (link) => `<!DOCTYPE html>
       </header>
 
       <main role="main">
-        <p>Olá,</p>
+        <p>Olá, ${solicitacao.nome}!</p>
         <p>
           Recebemos uma solicitação de cadastro com este e-mail na plataforma <b>Cadê a sala?</b>. Para confirmar
           sua conta, clique no botão abaixo:
@@ -116,6 +116,86 @@ export const mailConfirmToken = (link) => `<!DOCTYPE html>
       <footer role="contentinfo">
         <p>
           © ${new Date().getFullYear()} Cadê a Sala? — Universidade Federal do Ceará.
+        </p>
+        <p>Esta é uma mensagem automática, por favor, não responda.</p>
+      </footer>
+    </div>
+  </body>
+</html>`;
+
+export const mailAccountApproved = (email, senhaInicial) => `<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conta aprovada - Cadê a Sala?</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Albert+Sans:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
+
+      body {
+        font-family: "Albert Sans", sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0;
+        background-color: #f5f7fa;
+      }
+
+      .email-container {
+        background-color: white;
+        margin: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      header {
+        background: rgb(9, 37, 78);
+        padding: 2rem;
+        text-align: center;
+        color: white;
+      }
+
+      h2 {
+        font-size: 24px;
+        margin: 0;
+      }
+
+      main {
+        padding: 2rem;
+      }
+
+      footer {
+        padding: 1rem 2rem;
+        font-size: 12px;
+        color: #666;
+        text-align: center;
+        background-color: #f0f2f5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container" role="region" aria-labelledby="titulo-email">
+      <header role="banner">
+        <h2 id="titulo-email">Sua conta foi aprovada</h2>
+      </header>
+
+      <main role="main">
+        <p>Olá,</p>
+        <p>
+          Sua conta na plataforma <b>Cadê a sala?</b> foi aprovada com sucesso.
+        </p>
+        <p>
+          <strong>Email:</strong> ${email}<br />
+          <strong>Senha inicial:</strong> ${senhaInicial}
+        </p>
+        <p>Recomendamos que você altere sua senha após o primeiro acesso.</p>
+      </main>
+
+      <footer role="contentinfo">
+        <p>
+          © ${new Date().getFullYear()} Cadê a Sala? — Universidade Federal do
+          Ceará.
         </p>
         <p>Esta é uma mensagem automática, por favor, não responda.</p>
       </footer>
