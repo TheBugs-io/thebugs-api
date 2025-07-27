@@ -4,12 +4,16 @@ import * as mailReserva from '../service/mailReserva.js';
 export const listarReservas = async (req, res) => {
   try {
     const reservas = await reservaModel.listarReservas();
-    res.status(200).json({ message: "Sem reservas por enquanto.", reservas })
+
+    if (!reservas || reservas.length === 0) {
+      return res.status(200).json({ message: "Sem reservas por enquanto.", reservas: [] });
+    }
+
+    res.status(200).json({ reservas });
   } catch (error) {
     res.status(500).json({ erro: error.message || "Erro ao listar!" });
   }
-}
-//TODO: nEED TO FIX
+};
 
 export const solicitarReserva = async (req, res) => {
   try {
@@ -57,7 +61,11 @@ export const listarSolicitacoesReservas = async (req, res) => {
 
 export const cancelarReserva = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = Number(req.params.id);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ error: "ID inválido." });
+    }
 
     const reserva = await reservaModel.deletarReserva(id);
 
@@ -127,27 +135,38 @@ export const atualizarStatusReserva = async (req, res) => {
 };
 
 export const atualizarStatusSolicitacao = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!status) {
+    return res.status(400).json({ error: "Status é obrigatório." });
+  }
+
   try {
-    const { id } = req.params;
-    const { status } = req.body;
+    let resultado;
+    let message;
 
-    if (!status) {
-      return res.status(400).json({ error: "Status é obrigatório." });
+    switch (status) {
+      case "APROVADO":
+        resultado = await reservaModel.aprovarSolicitacao(id);
+        message = "Solicitação aprovada e reserva criada com sucesso.";
+        return res.status(200).json({ message, reserva: resultado });
+
+      default:
+        resultado = await reservaModel.atualizarStatusReserva(id, { status });
+
+        if (!resultado) {
+          return res.status(404).json({ error: "Solicitação não encontrada." });
+        }
+
+        message = "Status da solicitação atualizado com sucesso.";
+        return res.status(200).json({ message, solicitacao: resultado });
     }
 
-    if (status === 'APROVADO') {
-      const reservaCriada = await reservaModel.aprovarSolicitacao(id);
-      return res.status(200).json({ message: "Solicitação aprovada e reserva criada com sucesso.", reserva: reservaCriada });
-    }
-
-    const solicitacaoAtualizada = await reservaModel.atualizarSolicitacaoReserva(id, { status });
-    if (!solicitacaoAtualizada) {
-      return res.status(404).json({ error: "Solicitação não encontrada." });
-    }
-    res.status(200).json({ message: "Status da solicitação atualizado com sucesso.", solicitacao: solicitacaoAtualizada });
-    
   } catch (error) {
-    res.status(500).json({ error: error.message || "Erro ao atualizar o status da solicitação." });
+    return res.status(500).json({
+      error: error.message || "Erro ao atualizar o status da solicitação.",
+    });
   }
 };
 
