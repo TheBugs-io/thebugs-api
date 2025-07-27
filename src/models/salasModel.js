@@ -156,7 +156,11 @@ export const salaNaData = async (id_sala, data = "0000-00-01T10:00") => {
 };
 
 export const reservasDaSala = async (sala_id) => {
-  const reservas = await prisma.reserva.findMany({ where: { localId: sala_id } });
+  const reservas = await prisma.reserva.findMany({
+    where: { localId: Number(sala_id) }, include: { responsavel: {
+      select: { nomeCompleto: true, tipo: true },
+    } },
+  });
   return reservas;
 };
 
