@@ -6,6 +6,7 @@ import userRoutes from "./routes/userRoutes.js";
 import salasRoutes from "./routes/salasRoutes.js";
 import favRoutes from "./routes/favRoutes.js";
 import historicoRoutes from "./routes/historicoRoutes.js";
+import pesquisaRoutes from "./routes/pesquisaRoutes.js";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use("/users", userRoutes);
 app.use("/salas", salasRoutes);
 app.use("/users", favRoutes);
 app.use("/historico", historicoRoutes);
+app.use("/pesquisa", pesquisaRoutes);
 
 export default app;
 //fazer as rotas de salas (inserir + consultar mapa)
