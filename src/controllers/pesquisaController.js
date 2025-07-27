@@ -17,7 +17,14 @@ export const pesquisar = async (string) => {
 
   const salas = await prisma.local.findMany({ where: { nome: { contains: string, mode: "insensitive" } } });
 
-  const reservas = await prisma.reserva.findMany({ where: { nome: { contains: string, mode: "insensitive" } } });
+  const reservas = await prisma.reserva.findMany({
+    where: {
+      OR: [
+        { nome: { contains: string, mode: "insensitive" } },
+        { responsavel: { nomeCompleto: { contains: string, mode: "insensitive" }, NOT: { tipo: "SECRETARIO" } } },
+      ],
+    },
+  });
 
   const resultados = { usuarios, salas, reservas };
   return resultados;
