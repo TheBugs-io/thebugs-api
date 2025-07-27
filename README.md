@@ -45,22 +45,22 @@ A planilha também indica, de maneira bem limitada, as reservas de salas, conten
 
 **Total de Requisitos Não-Funcionais:** 8
 
-**Total de requisitos concluídos**: 5
+**Total de requisitos concluídos**: 14 (100%)
 
 ### Requisitos Funcionais
 |   ID      |   Funcionalidade     |    Descrição      |    Front-end    |    Back-end    |  Design  |    Perfil      |      Prioridade       | Status |
 |----|----|----|----|-----|-----|----|----|----|
 |   RF001   |   Registro    | Como usuário, quero me registrar via solicitação de confirmação de vínculo a secretaria, vinculado ao SIGAA. | Validar dados e enviar solicitação de aprovação | Guardar a solicitação e notificar os secretários | Tela com arquitetura e sequências proposta para respectivos registros dos tipos, docente e discente. | Aluno  | Média | CONCLUIDO |
 |   RF002   |   Autenticação    |   Como usuário, quero entrar na plataforma com minha conta.  | Exibir tela de login | Verificar/validar dados e retornar uma confirmação | Demonstrar a identidade visual do projeto |   Geral   |    Alta    | CONCLUIDO |
-|   RF003   |   Mapa interativo |   Como usuário, quero visualizar o mapa interativo com layout das salas.  | Exibir opções para visualizar diferentes andares e escolher entre as salas | Filtrar, guardar em cache e fornecer os dados necessários | Representar (de forma abstrata ou realista) a planta do bloco e as cores que definem os status das salas | Geral  |    Média   | - |
-|RF004|Histórico de alterações|Como usuário administrador, quero visualizar o histórico de reserva de salas, autor, dia e horário, além de mudança de status.| Exibir lista/tabela de informações com acessibilidade | Registrar quais eventos aconteceram e quando | Design de acessibilidade |Aluno / Admin|Média| EM ANDAMENTO (40%) |
+|   RF003   |   Mapa interativo |   Como usuário, quero visualizar o mapa interativo com layout das salas.  | Exibir opções para visualizar diferentes andares e escolher entre as salas | Filtrar, guardar em cache e fornecer os dados necessários | Representar (de forma abstrata ou realista) a planta do bloco e as cores que definem os status das salas | Geral  |    Média   | CONCLUIDO |
+|RF004|Histórico de alterações|Como usuário administrador, quero visualizar o histórico de reserva de salas, autor, dia e horário, além de mudança de status.| Exibir lista/tabela de informações com acessibilidade | Registrar quais eventos aconteceram e quando | Design de acessibilidade |Aluno / Admin|Média| CONCLUIDO |
 |RF005|Gerenciamento de reservas de salas|Como usuário administrador, quero aprovar ou rejeitar reservas feitas por alunos.| Tela para ver os detalhes da reserva e decidir sobre ela | Registrar as reservas, ler e atualizá-las | Design de acessibilidade |Admin|Alta| CONCLUIDO |
-|RF006|Filtros de sala|Como usuário, quero filtrar ou pesquisar salas por data, horário, tipo ou local.| Atualizar o mapa conforme os filtros selecionados | Fornecer os dados para a data específica | Escolha de filtros pertinentes |Geral|Alta|
-|RF007|Retirada de reserva automática|Como usuário administrador, quero que o sistema altere o status das salas de forma automática quando o tempo de reserva expirar.| - | Verificar o prazo da reserva e comparar com a data atual | - |Admin|Média|
-|RF008|Detalhes da sala|Como usuário, quero conferir detalhes das salas, como a grade de horários/ocupações e fotos do local.| Exibir todos os dados de uma sala específica | Reunir e enviar todos os dados da sala selecionada | Hierarquia da informação e cores de destaque |Aluno / Professor|Desejável| EM ANDAMENTO (60%) |
-|RF009|Notificação do sistema|Como usuário, quero receber notificações automáticas por e-mail ou no sistema para lembrar de reservas, alterações e cancelamentos| - | Enviar e-mails para os usuários | Designar o conteúdo das notificações |Aluno / Professor|Desejável| EM ANDAMENTO (70%) |
-|RF010|Solicitação de reserva de sala|Como usuário, quero poder solicitar antecipadamente ou reservar sala diretamente caso esteja disponível no período de tempo desejado e cancelar minhas reservas| Criar um formulário e validar os dados antes de serem enviados | Registrar o pedido no histórico e informar os secretários | - |Aluno / Professor|Alta| EM ANDAMENTO |
-|RF011|Página do histórico do aluno|Como usuário, quero visualizar uma página de perfil com histórico das minhas reservas.| Listar as reservas do usuário na página de perfil | Fornecer o histórico de reservas do usuário | CONCLUIDO |Geral|Média|
+|RF006|Filtros de sala|Como usuário, quero filtrar ou pesquisar salas por data, horário, tipo ou local.| Atualizar o mapa conforme os filtros selecionados | Fornecer os dados para a data específica | Escolha de filtros pertinentes |Geral|Alta| CONCLUIDO |
+|RF007|Retirada de reserva automática|Como usuário administrador, quero que o sistema altere o status das salas de forma automática quando o tempo de reserva expirar.| - | Verificar o prazo da reserva e comparar com a data atual | - |Admin|Média| CONCLUIDO |
+|RF008|Detalhes da sala|Como usuário, quero conferir detalhes das salas, como a grade de horários/ocupações e fotos do local.| Exibir todos os dados de uma sala específica | Reunir e enviar todos os dados da sala selecionada | Hierarquia da informação e cores de destaque |Aluno / Professor|Desejável| CONCLUIDO |
+|RF009|Notificação do sistema|Como usuário, quero receber notificações automáticas por e-mail ou no sistema para lembrar de reservas, alterações e cancelamentos| - | Enviar e-mails para os usuários | Designar o conteúdo das notificações |Aluno / Professor|Desejável| CONCLUIDO |
+|RF010|Solicitação de reserva de sala|Como usuário, quero poder solicitar antecipadamente ou reservar sala diretamente caso esteja disponível no período de tempo desejado e cancelar minhas reservas| Criar um formulário e validar os dados antes de serem enviados | Registrar o pedido no histórico e informar os secretários | - |Aluno / Professor|Alta| CONCLUIDO |
+|RF011|Página do histórico do aluno|Como usuário, quero visualizar uma página de perfil com histórico das minhas reservas.| Listar as reservas do usuário na página de perfil | Fornecer o histórico de reservas do usuário  |Geral|Média| CONCLUIDO|
 |RF012|Favoritar disciplinas do semestre|Como usuário, quero verificar as salas onde tenho aula, sem precisar pesquisar por elas toda vez.| Listar as disciplinas favoritadas do usuário | Guardar quais disciplinas o usuário favoritou | - |Aluno / Professor|Média| CONCLUIDO |
 |RF013|Dashboard de solicitações|Como SECRETARIO, quero visualizar as solicitações de registro com respectivos status e informações dos usuários pedintes como tipo, vínculo e outros. | Tela contendo todos as solicitações, categorizando id, email, nome, tipo, status | Verificar e puxar os dados referentes ao modelo de solicitação de registro | Tela com prevenção de erros e ruptura, com popups para confirmar ações | Admin | Média | CONCLUIDO |
 | RF014 | Histórico de solicitações de registro | Como SECRETARIO, quero visualizar o histórico das aprovações/rejeições das solicitações PARA manter registro das ações | Uma tela paralela a dashboard de solicitações listando as informações junto a data de atualização do pedido | Verificar e puxar os dados referentes ao modelo de solicitação de registro e poder deletar o histórico | Tela com prevenção de erros e rupturas | Admin | Baixa | CONCLUIDO |
@@ -109,7 +109,105 @@ src -> diretório com a estrutura de pastas do projeto
 
 ## Documentação da API
 
-Swagger | OpenAPI (disponibilizada em breve)
+Swagger | OpenAPI -> Principais rotas do backend
+
+### Autenticação
+
+#### Solicitar Registro
+```http
+POST /api/auth/register/solicitar
+Content-Type: application/json
+
+{
+  "nomeCompleto": "João Silva",
+  "email": "joao.silva@ufc.br",
+  "tipoUsuario": "DISCENTE"
+}
+```
+
+#### Login
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@ufc.br",
+  "senha": "suaSenha123"
+}
+```
+
+### Salas
+
+#### Listar Todas as Salas
+```http
+GET /salas
+Authorization: Bearer {token}
+```
+
+#### Buscar Sala por ID
+```http
+GET /salas/{id}
+Authorization: Bearer {token}
+```
+
+#### Ver Reservas de uma Sala
+```http
+GET /salas/reservas-da-sala?sala_id={id}
+```
+
+### Reservas
+
+#### Listar Minhas Reservas
+```http
+GET /reservas
+Authorization: Bearer {token}
+```
+
+#### Solicitar Reserva
+```http
+POST /reservas/solicitar-reserva
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "localId": 1,
+  "tipo": "AULA",
+  "dataInicio": "2025-07-25T10:00:00.000Z",
+  "dataFim": "2025-07-25T12:00:00.000Z",
+  "horarioInicio": 10,
+  "horarioFim": 12,
+  "repeteEm": [],
+  "usuarioId": 5
+}
+```
+
+#### Cancelar Reserva
+```http
+DELETE /reservas/solicitar-reserva
+Authorization: Bearer {token}
+```
+
+### Favoritos
+
+#### Listar Salas Favoritas
+```http
+GET /users/favoritos
+Authorization: Bearer {token}
+```
+
+#### Favoritar Sala
+```http
+POST /users/favoritos
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "local_id": 1
+}
+```
+
+### Nota:
+As rotas de administração não estão listadas aqui.
 
 ## Como rodar o projeto
 
@@ -123,9 +221,9 @@ _É necessário ter o NodeJS em sua versão mais recente instalada em sua máqui
 
 
 ### Equipe:
-- **Ingryd Duarte** - Fullstack/Testes | [Github](https://github.com/ingrydf12)
+- **Ingryd Duarte** - Fullstack / Testes | [Github](https://github.com/ingrydf12)
 - **David Boanerges** - Gestão / Design | [Github](https://github.com/DavidBoa)
 - **Arthur Heráclio** - Front-end / Design | [Github](https://github.com/arthurheraclio)
 - **Giovanna Sousa** - Artes
-- **Renan Araujo** - Backend/Testes | [Github](https://github.com/Soiten)
+- **Renan Araujo** - Backend / Testes | [Github](https://github.com/Soiten)
 - **Tiago Viana** - Frontend / Design | [Github](https://github.com/TiagoViana-hue)

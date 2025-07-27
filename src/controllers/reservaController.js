@@ -1,12 +1,15 @@
-import * as reservaModel from '../models/reservaModel.js'
-import * as mailReserva from '../service/mailReserva.js';
+import * as reservaModel from "../models/reservaModel.js";
+import * as mailReserva from "../service/mailReserva.js";
+import registrarHistorico from "./historicoController.js";
 
 export const listarReservas = async (req, res) => {
   try {
     const reservas = await reservaModel.listarReservas();
 
     if (!reservas || reservas.length === 0) {
-      return res.status(200).json({ message: "Sem reservas por enquanto.", reservas: [] });
+      return res
+        .status(200)
+        .json({ message: "Sem reservas por enquanto.", reservas: [] });
     }
 
     res.status(200).json({ reservas });
@@ -39,6 +42,13 @@ export const solicitarReserva = async (req, res) => {
       usuarioId,
     });
 
+    await registrarHistorico(
+      "Reserva solicitada",
+      solicitacao,
+      "CREATE",
+      "SOLICITACAO"
+    );
+
     res.status(200).json({
       message: "Reserva solicitada. Aguarde a aprovação da secretaria.",
       solicitacao,
@@ -55,7 +65,11 @@ export const listarSolicitacoesReservas = async (req, res) => {
     const solicitacoes = await reservaModel.listarSolicitacoesReservas();
     res.status(200).json({ solicitacoes });
   } catch (error) {
-    res.status(500).json({ error: error.message || "Erro ao listar solicitações de reservas." });
+    res
+      .status(500)
+      .json({
+        error: error.message || "Erro ao listar solicitações de reservas.",
+      });
   }
 };
 
@@ -73,9 +87,13 @@ export const cancelarReserva = async (req, res) => {
       return res.status(404).json({ error: "Reserva não encontrada." });
     }
 
+    await registrarHistorico("Reserva cancelada", reserva, "DELETE", "RESERVA");
+
     res.status(200).json({ message: "Reserva cancelada com sucesso." });
   } catch (error) {
-    res.status(500).json({ error: error.message || "Erro ao cancelar a reserva." });
+    res
+      .status(500)
+      .json({ error: error.message || "Erro ao cancelar a reserva." });
   }
 };
 
@@ -86,12 +104,16 @@ export const listarReservasUsuario = async (req, res) => {
     const reservas = await reservaModel.listarReservasUsuario(usuarioId);
 
     if (reservas.length === 0) {
-      return res.status(404).json({ message: "Nenhuma reserva encontrada para este usuário." });
+      return res
+        .status(404)
+        .json({ message: "Nenhuma reserva encontrada para este usuário." });
     }
 
     res.status(200).json({ reservas });
   } catch (error) {
-    res.status(500).json({ error: error.message || "Erro ao listar reservas do usuário." });
+    res
+      .status(500)
+      .json({ error: error.message || "Erro ao listar reservas do usuário." });
   }
 };
 
@@ -104,33 +126,60 @@ export const atualizarStatusReserva = async (req, res) => {
       return res.status(400).json({ error: "Status é obrigatório." });
     }
 
-    const reservaAtualizada = await reservaModel.atualizarStatusReserva(id, status);
+    const reservaAtualizada = await reservaModel.atualizarStatusReserva(
+      id,
+      status
+    );
 
     if (!reservaAtualizada) {
       return res.status(404).json({ error: "Reserva não encontrada." });
     }
 
     switch (status.toLowerCase()) {
-      case 'cancelado':
-        await mailReserva.notificarAtualizacaoReservaAdm(reservaAtualizada.email, reservaAtualizada, req.user.nome);
-        return res.status(200).json({ message: "Reserva cancelada com sucesso." });
-      case 'pendente':
+      case "cancelado":
+        await mailReserva.notificarAtualizacaoReservaAdm(
+          reservaAtualizada.email,
+          reservaAtualizada,
+          req.user.nome
+        );
+        return res
+          .status(200)
+          .json({ message: "Reserva cancelada com sucesso." });
+      case "pendente":
         await mailReserva.notificarSecretariaPedido(reservaAtualizada);
         break;
-      case 'rejeitado':
+      case "rejeitado":
         await mailReserva.notificarUsuarioReserva(reservaAtualizada);
         await reservaModel.deletarReserva(id);
-        return res.status(200).json({ message: "Reserva rejeitada e deletada." });
-      case 'aprovado':
+        return res
+          .status(200)
+          .json({ message: "Reserva rejeitada e deletada." });
+      case "aprovado":
         await mailReserva.notificarUsuarioReserva(reservaAtualizada);
         break;
       default:
         return res.status(400).json({ error: "Status inválido." });
     }
 
-    res.status(200).json({ message: "Status da reserva atualizado com sucesso.", reserva: reservaAtualizada });
+    await registrarHistorico(
+      "Reserva atualizada",
+      reservaAtualizada,
+      "UPDATE",
+      "RESERVA"
+    );
+
+    res
+      .status(200)
+      .json({
+        message: "Status da reserva atualizado com sucesso.",
+        reserva: reservaAtualizada,
+      });
   } catch (error) {
-    res.status(500).json({ error: error.message || "Erro ao atualizar o status da reserva." });
+    res
+      .status(500)
+      .json({
+        error: error.message || "Erro ao atualizar o status da reserva.",
+      });
   }
 };
 
@@ -146,22 +195,23 @@ export const atualizarStatusSolicitacao = async (req, res) => {
     let resultado;
     let message;
 
-    switch (status) {
-      case "APROVADO":
-        resultado = await reservaModel.aprovarSolicitacao(id);
-        message = "Solicitação aprovada e reserva criada com sucesso.";
-        return res.status(200).json({ message, reserva: resultado });
-
-      default:
-        resultado = await reservaModel.atualizarStatusReserva(id, { status });
-
-        if (!resultado) {
-          return res.status(404).json({ error: "Solicitação não encontrada." });
-        }
-
-        message = "Status da solicitação atualizado com sucesso.";
-        return res.status(200).json({ message, solicitacao: resultado });
+    if (status === "APROVADO") {
+      resultado = await reservaModel.aprovarSolicitacao(id);
+      message = "Solicitação aprovada e reserva criada com sucesso.";
+      
+      await registrarHistorico("Solicitação aprovada", resultado, "UPDATE", "SOLICITACAO");
+      return res.status(200).json({ message, reserva: resultado });
     }
+
+    resultado = await reservaModel.atualizarStatusReserva(id, { status });
+
+    if (!resultado) {
+      return res.status(404).json({ error: "Solicitação não encontrada." });
+    }
+
+    message = "Status da solicitação atualizado com sucesso.";
+    await registrarHistorico("Solicitação atualizada", resultado, "UPDATE", "SOLICITACAO");
+    return res.status(200).json({ message, solicitacao: resultado });
 
   } catch (error) {
     return res.status(500).json({
@@ -183,9 +233,15 @@ export const deletarSolicitacao = async (req, res) => {
     }
 
     await reservaModel.deletarSolicitacao(id);
+    await registrarHistorico(
+      "Solicitação deletada",
+      solicitacao,
+      "DELETE",
+      "SOLICITACAO"
+    );
     res.status(200).json({ message: "Solicitação deletada com sucesso." });
   } catch (error) {
     console.error("Erro ao deletar solicitação:", error);
     res.status(500).json({ error: "Erro ao deletar solicitação." });
   }
-}
+};

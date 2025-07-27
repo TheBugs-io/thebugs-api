@@ -134,6 +134,28 @@ model RegistroReserva {
   secretario   Secretario   @relation(fields: [secretarioId], references: [id])
 }
 
+model RegistroHistorico {
+  id           Int          @id @default(autoincrement())
+  acao         String
+  objeto       Json?
+  tipoCRUD     tipoCRUD
+  tipoEntidade tipoEntidade
+  data         DateTime     @default(now())
+}
+
+enum tipoCRUD {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum tipoEntidade {
+  USUARIO
+  RESERVA
+  SALA
+  SOLICITACAO
+}
+
 enum VinculoInst {
   EFETIVO
   SUBSTITUTO
