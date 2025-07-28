@@ -53,6 +53,7 @@ model Usuario {
   SolicitacaoRegistro SolicitacaoRegistro[]
   solicitacaoReserva  SolicitacaoReserva[]
   favoritos           Local[]               @relation("Favoritos")
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Docente {
@@ -141,6 +142,16 @@ model RegistroHistorico {
   tipoCRUD     tipoCRUD
   tipoEntidade tipoEntidade
   data         DateTime     @default(now())
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId Int
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 enum tipoCRUD {
