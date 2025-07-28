@@ -140,7 +140,7 @@ model RegistroHistorico {
   objeto       Json?
   tipoCRUD     tipoCRUD
   tipoEntidade tipoEntidade
-  data         DateTime     @default(now())
+  createdAt         DateTime     @default(now())
 }
 
 enum tipoCRUD {
