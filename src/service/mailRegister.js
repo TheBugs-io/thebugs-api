@@ -4,6 +4,7 @@ import { gerarHtmlSecretariaContent } from "../template/mailRequestRegister.js";
 import { mailAccountApproved } from "../template/mailEmailConfirm.js";
 import { mailConfirmToken } from "../template/mailEmailConfirm.js";
 import { disapprovedRegisterRequest } from "../template/mailDisapprovedRequest.js";
+import { mailResetPassword } from "../template/mailResetPassword.js";
 
 export const enviarEmailConfirmacao = async (email, token, solicitacao) => {
   const link = `${
@@ -57,5 +58,19 @@ export const notificarUsuario = async (email, senhaInicial) => {
     subject: "Cadê a sala? | Sua conta foi aprovada",
     text: `Olá,\n\nSua conta na plataforma "Cadê a Sala?" foi criada com sucesso.\n\nEmail: ${email}\nSenha inicial: ${senhaInicial}\n\nRecomendamos que você altere sua senha após o primeiro acesso.\n\nAtenciosamente,\nEquipe do Cadê a Sala?`,
     html: mailAccountApproved(email, senhaInicial),
+  });
+};
+
+export const verificarRedefinicaoEmail = async (email, token) => {
+  const link = `${(process.env.FRONTEND_URL || "https://cadeasala.vercel.app").replace(/\/+$/, "")}/redefinir-senha?token=${token}`;
+
+  if (!email) return;
+
+  await transporter.sendMail({
+    from: '"Cadê a Sala?" <nao-responda@ufc.br>',
+    to: email,
+    subject: "Cadê a Sala? | Redefinição de Senha",
+    text: `Olá,\n\nAlguém fez o pedido para redefinir sua senha, e você pode fazer isso clicando no link abaixo.\n\nAtenciosamente,\nEquipe do Cadê a Sala?`,
+    html: mailResetPassword(link),
   });
 };

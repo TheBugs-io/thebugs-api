@@ -8,7 +8,6 @@ export const listarUsuarios = async () => {
   return users;
 };
 
-
 export const buscarUsuarioPorId = async (id) => {
   const usuario = await prisma.usuario.findUnique({
     where: { id },
@@ -30,6 +29,20 @@ export const buscarUsuarioPorEmail = async (email) => {
 export const criarUsuario = async (dadosUsuario) => {
   return await prisma.usuario.create({
     data: dadosUsuario,
+  });
+};
+
+export const atualizarSenha = async (id, senha) => {
+  const usuario = await prisma.usuario.findUnique({
+    where: { id },
+  });
+  if (!usuario) {
+    throw new Error("Usuário não encontrado...");
+  }
+  const senhaHash = await bcrypt.hash(senha, 10);
+  return await prisma.usuario.update({
+    where: { id },
+    data: { senha: senhaHash },
   });
 };
 
