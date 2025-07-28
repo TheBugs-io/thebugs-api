@@ -62,9 +62,8 @@ export const notificarUsuario = async (email, senhaInicial) => {
 };
 
 export const verificarRedefinicaoEmail = async (email, token) => {
-  const link = `${
-    process.env.FRONTEND_URL || "https://cadeasala.vercel.app"
-  }/redefinir-senha?token=${token}`;
+  const link = `${(process.env.FRONTEND_URL || "https://cadeasala.vercel.app").replace(/\/+$/, "")}/redefinir-senha?token=${token}`;
+
   if (!email) return;
 
   await transporter.sendMail({

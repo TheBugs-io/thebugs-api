@@ -55,8 +55,8 @@ export const forgotPassword = async (req, res) => {
     const token = jwt.sign({ userId: usuario.id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
-    const link = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-    await verificarRedefinicaoEmail(usuario.email, link);
+
+    await verificarRedefinicaoEmail(usuario.email, token);
     return res.status(200).json({ message: "E-mail de recuperação enviado." });
   } catch (error) {
     console.error("Erro ao enviar e-mail de recuperação:", error);
@@ -84,9 +84,7 @@ export const resetPassword = async (req, res) => {
       return res.status(404).json({ error: "Usuário não encontrado." });
     }
 
-    const senhaCriptografada = await bcrypt.hash(novaSenha, 10);
-
-    await userController.atualizarSenha(usuarioId, senhaCriptografada);
+    await userController.atualizarSenha(usuarioId, novaSenha);
 
     return res.status(200).json({ message: "Senha redefinida com sucesso." });
   } catch (error) {
