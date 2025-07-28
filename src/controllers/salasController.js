@@ -28,7 +28,7 @@ export const criarSala = async (req, res) => {
   try {
     const novaSala = await salaModel.criarSala(sala);
     
-    await registrarHistorico(`Sala foi criada`, novaSala, "CREATE", "SALA");
+    await registrarHistorico(`Sala '${novaSala.nome}' foi criada`, novaSala, "CREATE", "SALA");
 
     return res.status(201).json({
       message: "Sala criada com sucesso.",
@@ -121,7 +121,7 @@ export const editarSala = async (req, res) => {
 
   if (FORMATO_VALIDO) {
     const editada = await salaModel.editarSala(sala_id, novosDados);
-    await registrarHistorico(`Sala foi atualizada`, editada, "UPDATE", "SALA");
+    await registrarHistorico(`Sala '${editada.nome}' foi atualizada`, editada, "UPDATE", "SALA");
     return res
       .status(200)
       .json({ message: "Editada com sucesso", data: editada });
@@ -135,7 +135,7 @@ export const deletarSala = async (req, res) => {
   const { sala_id } = req.body;
   if (typeof sala_id == "number") {
     const deletada = await salaModel.deletarSala(sala_id);
-    await registrarHistorico(`Sala foi deletada`, deletada, "DELETE", "SALA");
+    await registrarHistorico(`Sala '${deletada.nome}' foi deletada`, deletada, "DELETE", "SALA");
     return res
       .status(200)
       .json({ message: "Deletada com sucesso", data: deletada });
