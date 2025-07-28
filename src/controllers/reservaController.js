@@ -100,7 +100,7 @@ export const cancelarReserva = async (req, res) => {
 
 export const listarReservasUsuario = async (req, res) => {
   try {
-    const usuarioId = req.user.id;
+    const usuarioId = req.usuario.id;
 
     const reservas = await reservaModel.listarReservasUsuario(usuarioId);
 
