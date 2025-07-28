@@ -35,3 +35,38 @@ export const buscarUsuarioPorEmail = async (email) => {
     throw error;
   }
 };
+
+export const buscarUsuarioPorId = async (id) => {
+  try {
+    if (!id) {
+      throw new Error("ID do usuário é obrigatório");
+    }
+    const usuario = await userModel.buscarUsuarioPorId(id);
+    if (!usuario) {
+      throw new Error("Usuário não encontrado");
+    }
+    return usuario;
+  } catch (error) {
+    console.error("ERRO AO BUSCAR USUÁRIO POR ID:", error.message);
+    throw error;
+  }
+};
+
+export const atualizarSenha = async (usuarioId, novaSenha) => {
+  try {
+    if (!usuarioId || !novaSenha) {
+      throw new Error("ID do usuário e nova senha são obrigatórios");
+    }
+
+    const usuario = await userModel.atualizarSenha(usuarioId, novaSenha);
+
+    if (!usuario) {
+      throw new Error("Usuário não encontrado ou erro ao atualizar senha");
+    }
+
+    return usuario;
+  } catch (error) {
+    console.error("ERRO AO ATUALIZAR SENHA:", error.message);
+    throw error;
+  }
+};
