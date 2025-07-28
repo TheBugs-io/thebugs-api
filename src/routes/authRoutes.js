@@ -9,6 +9,9 @@ const router = express.Router();
 router.post('/login', authService.login);
 router.post('/register/solicitar', registerService.solicitarRegistro);
 router.get('/register/confirmar/:token', registerService.confirmarEmail);
+router.post('/forgot-password', authService.forgotPassword);
+router.post('/reset-password', authService.resetPassword);
+
 //MARK: - Secretarios
 router.post('/register/confirm-user', autorizacaoSecretario, registerService.confirmarEmail);
 router.get('/register/token/:token', registerService.buscarPorToken);
