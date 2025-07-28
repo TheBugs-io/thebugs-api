@@ -2,6 +2,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as userController from "../controllers/usuariosController.js";
 import { verificarRedefinicaoEmail } from "../service/mailRegister.js";
+import * as tokenRepository from "../models/tokenRepository.js";''
+import { v4 as uuidv4 } from "uuid";
 
 export const login = async (req, res) => {
   try {
@@ -41,6 +43,7 @@ export const login = async (req, res) => {
   }
 };
 
+
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
   if (!email) {
@@ -52,9 +55,11 @@ export const forgotPassword = async (req, res) => {
     if (!usuario) {
       return res.status(404).json({ error: "Usuário não encontrado." });
     }
-    const token = jwt.sign({ userId: usuario.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+
+    const token = uuidv4();
+    const expiresAt = new Date(Date.now() + 3600 * 1000);
+
+    await tokenRepository.createToken(usuario.id, token, expiresAt);
 
     await verificarRedefinicaoEmail(usuario.email, token);
     return res.status(200).json({ message: "E-mail de recuperação enviado." });
@@ -66,19 +71,21 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
+
 export const resetPassword = async (req, res) => {
   const { token, novaSenha } = req.body;
 
   if (!token || !novaSenha) {
-    return res
-      .status(400)
-      .json({ error: "Token e nova senha são obrigatórios." });
+    return res.status(400).json({ error: "Token e nova senha são obrigatórios." });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const usuarioId = decoded.userId;
+    const registroToken = await tokenRepository.findValidToken(token);
+    if (!registroToken) {
+      return res.status(400).json({ error: "Token inválido ou expirado." });
+    }
 
+    const usuarioId = registroToken.userId;
     const usuario = await userController.buscarUsuarioPorId(usuarioId);
     if (!usuario) {
       return res.status(404).json({ error: "Usuário não encontrado." });
@@ -86,14 +93,11 @@ export const resetPassword = async (req, res) => {
 
     await userController.atualizarSenha(usuarioId, novaSenha);
 
+    await tokenRepository.invalidateToken(token);
+
     return res.status(200).json({ message: "Senha redefinida com sucesso." });
   } catch (error) {
     console.error("Erro ao redefinir senha:", error);
-
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ error: "Token expirado." });
-    }
-
-    return res.status(400).json({ error: "Token inválido." });
+    return res.status(500).json({ error: "Erro interno." });
   }
 };

@@ -53,6 +53,7 @@ model Usuario {
   SolicitacaoRegistro SolicitacaoRegistro[]
   solicitacaoReserva  SolicitacaoReserva[]
   favoritos           Local[]               @relation("Favoritos")
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Docente {
@@ -137,10 +138,20 @@ model RegistroReserva {
 model RegistroHistorico {
   id           Int          @id @default(autoincrement())
   acao         String
-  objeto       Json?
   tipoCRUD     tipoCRUD
   tipoEntidade tipoEntidade
-  createdAt         DateTime     @default(now())
+  createdAt    DateTime     @default(now())
+  objeto       Json?
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId Int
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 enum tipoCRUD {
