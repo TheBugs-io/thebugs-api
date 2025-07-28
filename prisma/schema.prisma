@@ -138,10 +138,10 @@ model RegistroReserva {
 model RegistroHistorico {
   id           Int          @id @default(autoincrement())
   acao         String
-  objeto       Json?
   tipoCRUD     tipoCRUD
   tipoEntidade tipoEntidade
-  data         DateTime     @default(now())
+  createdAt    DateTime     @default(now())
+  objeto       Json?
 }
 
 model PasswordResetToken {
