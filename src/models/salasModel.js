@@ -71,16 +71,11 @@ export const editarSala = async (sala_id, novosDados) => {
   return atualizada;
 };
 
-export const mapaNaData = async (data = "00-00-0000T10:00") => {
-  const [dia, _] = data.split("T");
-  const hora = Number(_.slice(0, 2));
-
-  // ...dia
-  //   .split("-")
-  //   .reverse()
-  //   .map((v, i) => (i == 1 ? Number(v) - 1 : Number(v)))
-  const dataObj = dataBrasilia({ string: data });
-
+// traz atualizacao do mapa de salas na data, por padrão vem a data atual do sistema
+export const mapaNaData = async (dataHora = null) => {
+  const dataObj = dataHora ? dataBrasilia({ string: dataHora }) : new Date();
+  
+  const hora = dataObj.getHours();
   const diaSemana = [
     "DOMINGO",
     "SEGUNDA_FEIRA",
@@ -95,6 +90,9 @@ export const mapaNaData = async (data = "00-00-0000T10:00") => {
     select: {
       id: true,
       nome: true,
+      tipo: true,
+      localizacao: true,
+      capacidade: true,
       reservas: {
         where: {
           dataInicio: { lte: dataObj },
@@ -108,52 +106,141 @@ export const mapaNaData = async (data = "00-00-0000T10:00") => {
         },
       },
     },
+    orderBy: [
+      { localizacao: 'asc' },
+      { numeracaoSala: 'asc' } 
+    ],
   });
 
   return mapa;
 };
 
-export const salaNaData = async (id_sala, data = "0000-00-01T10:00") => {
-  const sala = await prisma.local.findUnique({ where: { id: Number(id_sala) } });
-  const ENCONTRADA = sala != null;
+//traz as infos da sala na data e deve estar vinculada com a função mapaNaData
+export const salaNaData = async (id_sala, dataHora = null) => {
+  const sala = await prisma.local.findUnique({ 
+    where: { id: Number(id_sala) },
+    include: {
+      responsavel: { select: { nomeCompleto: true } },
+    }
+  });
+  
+  if (!sala) {
+    throw new Error("Sala não encontrada");
+  }
 
-  if (ENCONTRADA) {
-    // const [dia, _] = data.split("T");
-    const hora = Number(data.split("T")[1].slice(0, 2));
-
-    const dataObj = dataBrasilia({ string: data });
-
-    const diaSemana = [
+  const dataObj = dataHora ? dataBrasilia({ string: dataHora }) : new Date();
+  const hora = dataObj.getHours();
+  getDiaSemana = (data) => {
+    const dias = [
       "DOMINGO",
       "SEGUNDA_FEIRA",
       "TERCA_FEIRA",
       "QUARTA_FEIRA",
       "QUINTA_FEIRA",
       "SEXTA_FEIRA",
-      "SABADO",
-    ][dataObj.getDay()];
+      "SABADO"
+    ];
+    return dias[data.getDay()];
+  };
 
-    console.log(dataObj.toISOString(), data, diaSemana, hora);
+  const reserva = await prisma.reserva.findFirst({
+    where: {
+      localId: Number(id_sala),
+      dataInicio: { lte: dataObj },
+      dataFim: { gte: dataObj },
+      horarioInicio: { lte: hora },
+      horarioFim: { gt: hora },
+      OR: [{ repeteEm: { has: diaSemana } }, { repete: false }],
+    },
+    include: {
+      responsavel: { select: { nomeCompleto: true, tipo: true } },
+    },
+  });
 
-    const reserva = await prisma.reserva.findFirst({
-      where: {
-        localId: Number(id_sala),
-        dataInicio: { lte: dataObj },
-        dataFim: { gte: dataObj },
-        horarioInicio: { lte: hora },
-        horarioFim: { gt: hora },
-        OR: [{ repeteEm: { has: diaSemana } }, { repete: false }],
-      },
-      include: {
-        responsavel: { select: { nomeCompleto: true, tipo: true } },
-      },
-    });
-    if (reserva == null) return "livre";
-    return reserva;
+  return {
+    ...sala,
+    status: reserva ? "reservada" : "livre",
+    reservaAtual: reserva || null
+  };
+};
+
+//feat: verifica a disponibilidade da sala
+export const verificarDisponibilidadePeriodo = async (
+  sala_id,
+  dataInicio,
+  dataFim,
+  horarioInicio,
+  horarioFim,
+  repete = false,
+  repeteEm = []
+) => {
+  const inicio = dataBrasilia({ string: dataInicio });
+  const fim = dataBrasilia({ string: dataFim });
+  
+  const sala = await prisma.local.findUnique({
+    where: { id: Number(sala_id) }
+  });
+  
+  if (!sala) {
+    throw new Error("Sala não encontrada");
   }
 
-  throw new Error("Sala não encontrada");
+  const reservasConflitantes = await prisma.reserva.findMany({
+    where: {
+      localId: Number(sala_id),
+      OR: [
+        {
+          repete: false,
+          dataInicio: { lte: fim },
+          dataFim: { gte: inicio },
+          OR: [
+            {
+              horarioInicio: { lt: horarioFim },
+              horarioFim: { gt: horarioInicio }
+            }
+          ]
+        },
+        {
+          repete: true,
+          dataInicio: { lte: fim },
+          dataFim: { gte: inicio },
+          repeteEm: {
+            hasSome: repete ? repeteEm : [getDiaSemana(inicio)]
+          },
+          horarioInicio: { lt: horarioFim },
+          horarioFim: { gt: horarioInicio }
+        }
+      ]
+    },
+    include: {
+      responsavel: {
+        select: { nomeCompleto: true }
+      }
+    }
+  });
+
+  return {
+    disponivel: reservasConflitantes.length === 0,
+    conflitos: reservasConflitantes,
+    mensagem: reservasConflitantes.length > 0
+      ? `A sala possui ${reservasConflitantes.length} reserva(s) conflitante(s) neste período`
+      : "Sala disponível no período solicitado"
+  };
 };
+
+//todo: modularizar essa função 
+function getDiaSemana(data) {
+  const dias = [
+    "DOMINGO",
+    "SEGUNDA_FEIRA",
+    "TERCA_FEIRA",
+    "QUARTA_FEIRA",
+    "QUINTA_FEIRA",
+    "SEXTA_FEIRA",
+    "SABADO"
+  ];
+  return dias[data.getDay()];
+}
 
 export const reservasDaSala = async (sala_id) => {
   const reservas = await prisma.reserva.findMany({

@@ -9,6 +9,7 @@ router.get("/mapa", salasController.mapaNaData);
 router.get("/na-data", salasController.salaNaData);
 router.get("/reservas-da-sala", salasController.reservasDaSala);
 router.get("/:id", salasController.getSala);
+router.post("/verificar-disponibilidade", salasController.verificarDisponibilidade);
 
 router.use(authMiddleware)
 router.post("/criar", autorizacaoSecretario, salasController.criarSala);

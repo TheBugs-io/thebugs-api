@@ -1,5 +1,6 @@
 import * as salaModel from "../models/salasModel.js";
 import registrarHistorico from "./historicoController.js";
+import prisma from "../database/prisma.js";
 
 export const listarSalas = async (req, res) => {
   try {
@@ -27,8 +28,13 @@ export const criarSala = async (req, res) => {
 
   try {
     const novaSala = await salaModel.criarSala(sala);
-    
-    await registrarHistorico(`Sala '${novaSala.nome}' foi criada`, novaSala, "CREATE", "SALA");
+
+    await registrarHistorico(
+      `Sala '${novaSala.nome}' foi criada`,
+      novaSala,
+      "CREATE",
+      "SALA"
+    );
 
     return res.status(201).json({
       message: "Sala criada com sucesso.",
@@ -42,19 +48,6 @@ export const criarSala = async (req, res) => {
       details: error.message,
     });
   }
-};
-
-//  /mapa?data=DD-MM-AAAATHH:MM
-export const mapaNaData = async (req, res) => {
-  const { data } = req.query;
-  const [dia, hora] = data.split("T");
-  const FORMATO_VALIDO =
-    /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(dia) &&
-    /^[0-9]{2}:[0-9]{2}$/.test(hora);
-  if (!FORMATO_VALIDO) return res.sendStatus(400);
-
-  const mapa = await salaModel.mapaNaData(data);
-  return res.send(mapa);
 };
 
 //pega oq ta acontecendo naquela sala naquele horario (util pra favoritos, pra ver oq ta acontecendo ou vai acontecer)
@@ -121,7 +114,12 @@ export const editarSala = async (req, res) => {
 
   if (FORMATO_VALIDO) {
     const editada = await salaModel.editarSala(sala_id, novosDados);
-    await registrarHistorico(`Sala '${editada.nome}' foi atualizada`, editada, "UPDATE", "SALA");
+    await registrarHistorico(
+      `Sala '${editada.nome}' foi atualizada`,
+      editada,
+      "UPDATE",
+      "SALA"
+    );
     return res
       .status(200)
       .json({ message: "Editada com sucesso", data: editada });
@@ -135,10 +133,115 @@ export const deletarSala = async (req, res) => {
   const { sala_id } = req.body;
   if (typeof sala_id == "number") {
     const deletada = await salaModel.deletarSala(sala_id);
-    await registrarHistorico(`Sala '${deletada.nome}' foi deletada`, deletada, "DELETE", "SALA");
+    await registrarHistorico(
+      `Sala '${deletada.nome}' foi deletada`,
+      deletada,
+      "DELETE",
+      "SALA"
+    );
     return res
       .status(200)
       .json({ message: "Deletada com sucesso", data: deletada });
   }
   return res.status(400).json({ message: "'sala_id' deve ser inteiro" });
+};
+
+export const verificarDisponibilidade = async (req, res) => {
+  try {
+    const {
+      salaId,
+      dataInicio,
+      dataFim,
+      horarioInicio,
+      horarioFim,
+      repete,
+      repeteEm,
+    } = req.body;
+
+    const disponibilidade = await verificarDisponibilidadePeriodo(
+      salaId,
+      dataInicio,
+      dataFim,
+      horarioInicio,
+      horarioFim,
+      repete,
+      repeteEm
+    );
+
+    res.status(200).json(disponibilidade);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+export const mapaNaData = async (req, res) => {
+  try {
+    const { data, hora } = req.query;
+
+    if (!data || !hora) {
+      return res
+        .status(400)
+        .json({ error: "Parâmetros data e hora são obrigatórios" });
+    }
+
+    // Valida formato YYYY-MM-DD
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
+      return res.status(400).json({ error: "Formato de data inválido. Use YYYY-MM-DD" });
+    }
+
+    const horaNum = parseInt(hora);
+    if (isNaN(horaNum) || horaNum < 0 || horaNum > 23) {
+      return res.status(400).json({ error: "Hora inválida (0-23)" });
+    }
+
+    // Extrai ano, mês e dia da data YYYY-MM-DD
+    const [ano, mes, dia] = data.split("-");
+    // Ajusta para UTC considerando seu timezone (UTC-3)
+    const dataConsulta = new Date(Date.UTC(ano, mes - 1, dia, horaNum + 3, 0, 0));
+
+    const diasSemana = [
+      "DOMINGO",
+      "SEGUNDA_FEIRA",
+      "TERCA_FEIRA",
+      "QUARTA_FEIRA",
+      "QUINTA_FEIRA",
+      "SEXTA_FEIRA",
+      "SABADO",
+    ];
+    const diaSemana = diasSemana[dataConsulta.getUTCDay()];
+
+    const salas = await prisma.local.findMany({
+      include: {
+        reservas: {
+          where: {
+            AND: [
+              {
+                dataInicio: { lte: dataConsulta },
+                dataFim: { gte: dataConsulta },
+                horarioInicio: { lte: horaNum },
+                horarioFim: { gt: horaNum },
+                statusPedido: "APROVADO",
+              },
+              {
+                OR: [
+                  { repete: false },
+                  { repete: null },
+                  { repete: true, repeteEm: { has: diaSemana } },
+                ],
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    res.status(200).json(salas);
+  } catch (error) {
+    console.error("Erro em mapaNaData:", {
+      message: error.message,
+      stack: error.stack,
+      query: req.query,
+    });
+    res.status(500).json({ error: "Erro interno ao processar mapa de salas" });
+  }
 };
