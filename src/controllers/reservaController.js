@@ -18,7 +18,6 @@ export const listarReservas = async (req, res) => {
   }
 };
 
-
 export const solicitarReserva = async (req, res) => {
   try {
     const {
@@ -66,11 +65,9 @@ export const listarSolicitacoesReservas = async (req, res) => {
     const solicitacoes = await reservaModel.listarSolicitacoesReservas();
     res.status(200).json({ solicitacoes });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: error.message || "Erro ao listar solicitações de reservas.",
-      });
+    res.status(500).json({
+      error: error.message || "Erro ao listar solicitações de reservas.",
+    });
   }
 };
 
@@ -169,27 +166,28 @@ export const atualizarStatusReserva = async (req, res) => {
       "RESERVA"
     );
 
-    res
-      .status(200)
-      .json({
-        message: "Status da reserva atualizado com sucesso.",
-        reserva: reservaAtualizada,
-      });
+    res.status(200).json({
+      message: "Status da reserva atualizado com sucesso.",
+      reserva: reservaAtualizada,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: error.message || "Erro ao atualizar o status da reserva.",
-      });
+    res.status(500).json({
+      error: error.message || "Erro ao atualizar o status da reserva.",
+    });
   }
 };
 
 export const atualizarStatusSolicitacao = async (req, res) => {
-  const { id } = req.params;
+  const id = Number(req.params.id);
   const { status } = req.body;
 
   if (!status) {
     return res.status(400).json({ error: "Status é obrigatório." });
+  }
+
+  const solicitacao = await reservaModel.buscarSolicitacaoReserva(id);
+  if (!solicitacao) {
+    return res.status(404).json({ error: "Solicitação não encontrada." });
   }
 
   try {
@@ -199,15 +197,26 @@ export const atualizarStatusSolicitacao = async (req, res) => {
     if (status.toUpperCase() === "APROVADO") {
       resultado = await reservaModel.aprovarSolicitacao(id);
       message = "Solicitação aprovada e reserva criada com sucesso.";
-      await registrarHistorico("Solicitação aprovada", resultado, "UPDATE", "SOLICITACAO");
+      await registrarHistorico(
+        "Solicitação aprovada",
+        resultado,
+        "UPDATE",
+        "SOLICITACAO"
+      );
       return res.status(200).json({ message, reserva: resultado });
     }
 
     if (status.toUpperCase() === "REJEITADO") {
       await reservaModel.rejeitarSolicitacao(id);
-      const solicitacao = await reservaModel.buscarSolicitacaoReserva(id);
-      await registrarHistorico("Solicitação rejeitada", solicitacao, "DELETE", "SOLICITACAO");
-      return res.status(200).json({ message: "Solicitação rejeitada com sucesso." });
+      await registrarHistorico(
+        "Solicitação rejeitada",
+        solicitacao,
+        "DELETE",
+        "SOLICITACAO"
+      );
+      return res
+        .status(200)
+        .json({ message: "Solicitação rejeitada com sucesso." });
     }
 
     resultado = await reservaModel.atualizarStatusReserva(id, { status });
@@ -217,9 +226,13 @@ export const atualizarStatusSolicitacao = async (req, res) => {
     }
 
     message = "Status da solicitação atualizado com sucesso.";
-    await registrarHistorico("Solicitação atualizada", resultado, "UPDATE", "SOLICITACAO");
+    await registrarHistorico(
+      "Solicitação atualizada",
+      resultado,
+      "UPDATE",
+      "SOLICITACAO"
+    );
     return res.status(200).json({ message, solicitacao: resultado });
-
   } catch (error) {
     return res.status(500).json({
       error: error.message || "Erro ao atualizar o status da solicitação.",

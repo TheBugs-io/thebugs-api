@@ -195,7 +195,7 @@ export const atualizarStatus = async (req, res) => {
     );
 
     if (status.toLowerCase() === "rejeitado") {
-      const dadosSolicitacao = await registroModel.buscarPorId(Number(id));
+      const dadosSolicitacao = await registroModel.buscarSolicitacaoPorId(Number(id));
       await notificarStatusRegistro(
         dadosSolicitacao.email,
         dadosSolicitacao.nome
